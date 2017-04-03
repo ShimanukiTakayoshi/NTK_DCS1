@@ -1,2 +1,12 @@
 C:\Users\Kyoei_Shimanuki\AppData\Local\Temporary Projects\DCS_NTK1\bin\Debug\DCS_NTK1.exe.config
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.exe.config
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.exe
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.pdb
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.xml
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.frmMain.resources
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.Resources.resources
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.vbproj.GenerateResource.Cache
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe.licenses
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.xml
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.pdb
