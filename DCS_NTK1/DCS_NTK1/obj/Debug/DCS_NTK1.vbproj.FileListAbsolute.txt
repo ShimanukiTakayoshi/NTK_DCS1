@@ -1,0 +1,2 @@
+C:\Users\Kyoei_Shimanuki\AppData\Local\Temporary Projects\DCS_NTK1\bin\Debug\DCS_NTK1.exe.config
+C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.exe.config
