@@ -46,11 +46,11 @@ Partial Class frmMain
         'timScan
         '
         Me.timScan.Enabled = True
-        Me.timScan.Interval = 1000
+        Me.timScan.Interval = 250
         '
         'TextBox1
         '
-        Me.TextBox1.Location = New System.Drawing.Point(12, 12)
+        Me.TextBox1.Location = New System.Drawing.Point(39, 256)
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.Size = New System.Drawing.Size(148, 19)
         Me.TextBox1.TabIndex = 0
@@ -58,7 +58,7 @@ Partial Class frmMain
         'dgvEq
         '
         Me.dgvEq.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvEq.Location = New System.Drawing.Point(66, 82)
+        Me.dgvEq.Location = New System.Drawing.Point(12, 12)
         Me.dgvEq.Name = "dgvEq"
         Me.dgvEq.RowTemplate.Height = 21
         Me.dgvEq.Size = New System.Drawing.Size(240, 150)

@@ -1,4 +1,13 @@
 ﻿Public Class frmMain
+    Public SaveFolder As String = "c:\NTK"
+    Public EqDataFolder As String = "\setubi"
+    Public QuDataFolder As String = "\hinshitu"
+    Public SaveSubFolder As String = ""                             'CSVファイル保存先サブホルダ
+    Public SaveFileName As String = ""                              'CSVファイル名
+
+    Public Gouki As Integer = 1
+    Public SaveTimeH As String = "7"       'データ保存ファイル切替時間(H)
+    Public SaveTimeM As String = "26"      'データ保存ファイル切替時間(M)
 
     'PLC通信アドレス設定
     Public AckAddress As Long = 0           'PLCへ受信OK返答
@@ -19,10 +28,15 @@
     Public EndTime As String = ""
     Public ProbeData(9） As Long
 
+    Public StackData(13, 110) As String     '直近n=100個分ﾃﾞｰﾀ
+    Public StackCounter As Integer = 0      'ｽﾀｯｸｶｳﾝﾀｰ
+
     Public PlcReadingFlag As Boolean = False
+    Public SaveDataFirstFlag As Boolean = True  '初回データ保存フラグ
 
     Public DebugFlag As Boolean = True
     Public tmp0 As Long = 0
+    Public TmpLong(9) As Long
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         initialize
@@ -34,13 +48,13 @@
         Me.Height = 768
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
         dgvEq.Width = 900
-        dgvEq.Height = 200
+        dgvEq.Height = 260
         Dim cstyle1 As New DataGridViewCellStyle
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleRight
         Dim columnHeaderStyle As DataGridViewCellStyle = dgvEq.ColumnHeadersDefaultCellStyle
         dgvEq.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
-        columnHeaderStyle.Font = New Font("ＭＳ ゴシック", 8)
-        dgvEq.Columns.Add("0", "素子品番")
+        columnHeaderStyle.Font = New Font("ＭＳ ゴシック", 6)
+        dgvEq.Columns.Add("0", "素子" & vbCrLf & "品番")
         dgvEq.Columns.Add("1", "ﾒｯｷﾛｯﾄ" & vbCrLf & "No.  ")
         dgvEq.Columns.Add("2", "作業者")
         dgvEq.Columns.Add("3", "仕掛時間")
@@ -55,9 +69,11 @@
         dgvEq.Columns.Add("12", "全長抵抗②" & vbCrLf & "斜めﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
         For i As Integer = 0 To 12
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
-            dgvEq.Columns(i).Width = 90
+            dgvEq.Columns(i).Width = 60
         Next i
-        For i As Integer = 0 To 9
+        dgvEq.Columns(3).Width = 110
+        dgvEq.Columns(4).Width = 110
+        For i As Integer = 0 To 99
             dgvEq.Rows.Add("")
         Next
         dgvEq.RowHeadersVisible = False
@@ -68,15 +84,7 @@
 
     Private Sub timScan_Tick(sender As Object, e As EventArgs) Handles timScan.Tick
         If Not PlcReadingFlag Then
-            If PlcRead(StartTriggerAdress) <> 0 Then
-                PlcWrite(StartTimeAddress, 0)
-                If Not DebugFlag Then
-                    StartProcess()
-                Else
-                    StartProcessDebug()
-                End If
-                DrawChartSetubi
-            End If
+            Main()
         End If
     End Sub
 
@@ -85,6 +93,39 @@
     '    TextBox1.Text = Str(tmp0)
     'End Sub
 
+    Public Sub Main()
+        'スタートトリガ監視
+        If PlcRead(StartTriggerAdress) <> 0 Then
+            PlcWrite(StartTriggerAdress, 0)
+            StackCounter += 1
+            If Not DebugFlag Then
+                StartProcess()
+                GetProbeData()
+                StackSet()
+            Else
+                StartProcessDebug()
+                GetProbeDataDebug()
+                StackSet()
+            End If
+            DrawChartSetubi()
+        End If
+        'エンドトリガ監視
+        If PlcRead(EndTriggerAdress) <> 0 Then
+            PlcWrite(EndTriggerAdress, 0)
+            EndProcess()
+            If Not DebugFlag Then
+                GetProbeData()
+                StackSet()
+            Else
+                GetProbeDataDebug()
+                StackSet()
+            End If
+            DrawChartSetubi()
+            SaveData()
+        End If
+    End Sub
+
+
     Public Sub StartProcess()
         PlcReadingFlag = True
         ElementNo = PlcReadStrings(ElementNoAddress, 8)
@@ -92,6 +133,10 @@
         OperatorNo = PlcReadStrings(LotNoAddress, 8)
         StartTime = Trim(CStr(Now))
         PlcReadingFlag = False
+    End Sub
+
+    Public Sub EndProcess()
+        EndTime = Trim(CStr(Now))
     End Sub
 
     Public Sub StartProcessDebug()
@@ -103,9 +148,51 @@
         PlcReadingFlag = False
     End Sub
 
-    Public Sub DrawChartSetubi()
-
+    Private Sub GetProbeData()
+        PlcReadingFlag = True
+        PlcReadData(ProbeAddress, 8)
+        PlcReadingFlag = False
+        For i As Integer = 0 To 7
+            ProbeData(i) = TmpLong(i)
+        Next
     End Sub
+
+    Private Sub GetProbeDataDebug()
+        PlcReadingFlag = True
+        For i As Integer = 0 To 7
+            ProbeData(i) = CLng(Int(Rnd(1) * 99999999))
+        Next
+        PlcReadingFlag = False
+    End Sub
+
+    Private Sub StackSet()
+        StackData(0, StackCounter) = ElementNo
+        StackData(1, StackCounter) = LotNo
+        StackData(2, StackCounter) = OperatorNo
+        StackData(3, StackCounter) = StartTime
+        StackData(4, StackCounter) = EndTime
+        For i As Integer = 5 To 12
+            StackData(i, StackCounter) = CStr(ProbeData(i - 5))
+        Next
+        If StackCounter > 100 Then
+            For i As Integer = 1 To 100
+                For j As Integer = 0 To 12
+                    StackData(j, i) = StackData(j, i + 1)
+                Next
+            Next
+            StackCounter = 100
+        End If
+    End Sub
+
+    Public Sub DrawChartSetubi()
+        For i As Integer = 0 To StackCounter
+            For j As Integer = 0 To 12
+                dgvEq.Item(j, i).Value = StackData(j, i + 1)
+            Next
+        Next
+    End Sub
+
+    'PLC通信
 
     Public Function PlcRead(address As Long) As Long
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
@@ -167,6 +254,31 @@
         End If
     End Function
 
+    Public Sub PlcReadData(address As Long, length As Integer)
+        '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+        'シーケンサーのDMメモリーより「address」にて指定したアドレスの内容を「length」ダブルワード分の整数を読み込む
+        '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+        Dim tmp1(99) As Long
+        If Not DebugFlag Then
+            Try
+                tmp1 = SysmacCJ.ReadMemoryDwordLong(OMRON.Compolet.SYSMAC.SysmacCJ.MemoryTypes.DM, address, length, OMRON.Compolet.SYSMAC.SysmacCJ.DataTypes.BIN)
+                For i As Integer = 0 To length
+                    TmpLong(i) = tmp1(i)
+                Next
+            Catch ex As Exception
+                If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
+                    Application.Exit()
+                End If
+                Application.Exit()
+            End Try
+        Else
+            For i As Integer = 0 To length
+                TmpLong(i) = 99999999
+            Next i
+        End If
+    End Sub
+
+
     Public Function HexAsc(x As String) As String
         If Len(x) > 4 Then x = Strings.Right(x, 4)
         If Len(x) < 4 Then x = Strings.Right("0000", (4 - Len(x))) + x
@@ -211,6 +323,53 @@
 
     Private Sub dgvEq_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvEq.CellClick
         dgvEq.CurrentCell = Nothing         '選択されているセルをなくす
+    End Sub
+
+    '各ファイル保存
+
+    Public Sub CreateSaveFolder()
+        '保存先フォルダ生成
+        Dim dt As DateTime = DateTime.Now
+        Dim b As String = dt.ToString
+        SaveSubFolder = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2)
+        Dim di As System.IO.DirectoryInfo = New System.IO.DirectoryInfo(SaveFolder + "\" + SaveSubFolder)
+        di.Create()
+    End Sub
+
+    Public Sub CreateSaveFileName()
+        '保存ファイル生成
+        Dim dt As DateTime = DateTime.Now
+        Dim b As String = dt.ToString
+        SaveFileName = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
+        Dim Title As String = ""
+        Title = "素子品番,ﾒｯｷﾛｯﾄ,作業者,仕掛時間,完了時間,検知上,検知横,検知下,全1上,全1下,全2上,全2横,全2斜" + vbCrLf
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".CSV", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".BKF", Title, True)
+    End Sub
+
+    Public Sub SaveData()
+        '起動初回確認
+        If SaveDataFirstFlag Then
+            CreateSaveFolder()
+            CreateSaveFileName()
+            SaveDataFirstFlag = False
+        End If
+        '現在時刻確認
+        Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
+        Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
+        Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
+        If NowDate <> SaveFileName And Val(NowTime) >= Val(SaveTimeH + SaveTimeM) Then
+            If NowYearMonth <> SaveSubFolder Then CreateSaveFolder()
+            CreateSaveFileName()
+        End If
+        'データ保存
+        Dim InputString As String = ""
+        For i As Integer = 0 To 12
+            InputString = InputString + StackData(i, StackCounter) + ","
+        Next
+        InputString = InputString & vbCrLf
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".CSV", InputString, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".BKF", InputString, True)
     End Sub
 
 End Class
