@@ -1,14 +1,11 @@
 ﻿Public Class frmMain
-    Public SaveFolder As String = "c:\NTK"
-    Public EqDataFolder As String = "\setubi"
-    Public QuDataFolder As String = "\hinshitu"
-    Public SaveSubFolder As String = ""                             'CSVファイル保存先サブホルダ
-    Public SaveFileName As String = ""                              'CSVファイル名
-
-    Public Gouki As Integer = 1
+    'データ保存関連
+    Public SaveFolder As String = "c:\NTK" 'CSVファイル保存先メインフォルダ
+    Public SaveSubFolder As String = ""    'CSVファイル保存先サブホルダ
+    Public SaveFileName As String = ""     'CSVファイル名
+    Public Gouki As Integer = 1            '号機番号
     Public SaveTimeH As String = "7"       'データ保存ファイル切替時間(H)
     Public SaveTimeM As String = "26"      'データ保存ファイル切替時間(M)
-
     'PLC通信アドレス設定
     Public AckAddress As Long = 0           'PLCへ受信OK返答
     Public StartTriggerAdress As Long = 0   'ｽﾀｰﾄﾄﾘｶﾞ
@@ -20,29 +17,29 @@
     Public EndTimeAddress As Long = 0       '完了時間
     Public ProbeAddress As Long = 0         'ﾌﾟﾛｰﾌﾞ使用回数先頭ｱﾄﾞﾚｽ
 
-
-    Public ElementNo As String = ""
-    Public LotNo As String = ""
-    Public OperatorNo As String = ""
-    Public StartTime As String = ""
-    Public EndTime As String = ""
-    Public ProbeData(9） As Long
+    Public ElementNo As String = ""         '素子品番
+    Public LotNo As String = ""             'ﾒｯｷﾛｯﾄNo.
+    Public OperatorNo As String = ""        '作業者
+    Public StartTime As String = ""         '仕掛時間
+    Public EndTime As String = ""           '完了時間
+    Public ProbeData(9） As Long             '各ﾌﾟﾛｰﾌﾞ使用回数
 
     Public StackData(13, 110) As String     '直近n=100個分ﾃﾞｰﾀ
     Public StackCounter As Integer = 0      'ｽﾀｯｸｶｳﾝﾀｰ
 
-    Public PlcReadingFlag As Boolean = False
-    Public SaveDataFirstFlag As Boolean = True  '初回データ保存フラグ
+    Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
+    Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
     Public DebugFlag As Boolean = True
     Public tmp0 As Long = 0
     Public TmpLong(9) As Long
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        initialize
+        initialize()
     End Sub
 
     Private Sub initialize()
+        '設備結果ﾃﾞｰﾀｼｰﾄ
         DGVClear(dgvEq)
         Me.Width = 1024
         Me.Height = 768
@@ -79,8 +76,41 @@
         dgvEq.RowHeadersVisible = False
         dgvEq.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvEq.CurrentCell = Nothing         '選択されているセルをなくす
-    End Sub
+        '品質結果ﾃﾞｰﾀｼｰﾄ
+        DGVClear(dgvQu)
+        Me.FormBorderStyle = FormBorderStyle.FixedSingle
+        dgvQu.Width = 1000
+        dgvQu.Height = 400
+        Dim cstyle2 As New DataGridViewCellStyle
+        cstyle1.Alignment = DataGridViewContentAlignment.MiddleRight
+        Dim columnHeaderStyle2 As DataGridViewCellStyle = dgvQu.ColumnHeadersDefaultCellStyle
+        dgvQu.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+        columnHeaderStyle2.Font = New Font("ＭＳ ゴシック", 6)
+        dgvQu.Columns.Add("0", "日付")
+        dgvQu.Columns.Add("1", "品番")
+        dgvQu.Columns.Add("2", "ﾛｯﾄNo.")
+        dgvQu.Columns.Add("3", "ﾜｰｸNo")
+        dgvQu.Columns.Add("4", "位置決め")
+        dgvQu.Columns.Add("5", "検知部抵抗")
+        dgvQu.Columns.Add("6", "結果")
+        dgvQu.Columns.Add("7", "ﾘﾄﾗｲ")
+        dgvQu.Columns.Add("8", "全長抵抗")
+        dgvQu.Columns.Add("9", "結果")
+        dgvQu.Columns.Add("10", "ﾘﾄﾗｲ")
+        dgvQu.Columns.Add("11", "測定ﾎﾟｼﾞｼｮﾝ")
+        dgvQu.Columns.Add("12", "ｲﾝﾃﾞｯｸｽ治具No.")
+        For i As Integer = 0 To 12
+            dgvQu.Columns(i).DefaultCellStyle = cstyle1
+            dgvQu.Columns(i).Width = 60
+        Next i
+        For i As Integer = 0 To 99
+            dgvQu.Rows.Add("")
+        Next
+        dgvQu.RowHeadersVisible = False
+        dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        dgvQu.CurrentCell = Nothing         '選択されているセルをなくす
 
+    End Sub
 
     Private Sub timScan_Tick(sender As Object, e As EventArgs) Handles timScan.Tick
         If Not PlcReadingFlag Then
