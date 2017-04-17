@@ -10,6 +10,7 @@
     Public AckAddress As Long = 0           'PLCへ受信OK返答
     Public StartTriggerAdress As Long = 0   'ｽﾀｰﾄﾄﾘｶﾞ
     Public EndTriggerAdress As Long = 0     'ｴﾝﾄﾞﾄﾘｶﾞ
+    Public DataTriggerAdress As Long = 0     'ｴﾝﾄﾞﾄﾘｶﾞ
     Public ElementNoAddress As Long = 0     '素子品番
     Public LotNoAddress As Long = 0         'ﾒｯｷﾛｯﾄ
     Public OperatorAddress As Long = 0      '作業者
@@ -22,10 +23,12 @@
     Public OperatorNo As String = ""        '作業者
     Public StartTime As String = ""         '仕掛時間
     Public EndTime As String = ""           '完了時間
-    Public ProbeData(9） As Long             '各ﾌﾟﾛｰﾌﾞ使用回数
+    Public ProbeData(9） As Long            '各ﾌﾟﾛｰﾌﾞ使用回数
 
-    Public StackData(13, 110) As String     '直近n=100個分ﾃﾞｰﾀ
-    Public StackCounter As Integer = 0      'ｽﾀｯｸｶｳﾝﾀｰ
+    Public StackData(13, 110) As String     '装置 直近n=100個分ﾃﾞｰﾀ
+    Public StackCounter As Integer = 0      '装置 ｽﾀｯｸｶｳﾝﾀｰ
+    Public DataStackData(13, 110) As String '測定 直近n=100個分ﾃﾞｰﾀ
+    Public DataStackCounter As Integer = 0  '測定 ｽﾀｯｸｶｳﾝﾀｰ
 
     Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
@@ -153,8 +156,22 @@
             DrawChartSetubi()
             SaveData()
         End If
+        '測定データトリガ監視
+        If PlcRead(DataTriggerAdress) <> 0 Then
+            PlcWrite(DataTriggerAdress, 0)
+            DataStackCounter += 1
+            'If Not DebugFlag Then
+            '    StartProcess()
+            '    GetProbeData()
+            '    StackSet()
+            'Else
+            '    StartProcessDebug()
+            '    GetProbeDataDebug()
+            '    StackSet()
+            'End If
+            'DrawChartSetubi()
+        End If
     End Sub
-
 
     Public Sub StartProcess()
         PlcReadingFlag = True
