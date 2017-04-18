@@ -10,13 +10,14 @@
     Public AckAddress As Long = 0           'PLCへ受信OK返答
     Public StartTriggerAdress As Long = 0   'ｽﾀｰﾄﾄﾘｶﾞ
     Public EndTriggerAdress As Long = 0     'ｴﾝﾄﾞﾄﾘｶﾞ
-    Public DataTriggerAdress As Long = 0     'ｴﾝﾄﾞﾄﾘｶﾞ
+    Public QuTriggerAdress As Long = 0      '品質ﾃﾞｰﾀﾄﾘｶﾞ
     Public ElementNoAddress As Long = 0     '素子品番
     Public LotNoAddress As Long = 0         'ﾒｯｷﾛｯﾄ
     Public OperatorAddress As Long = 0      '作業者
     Public StartTimeAddress As Long = 0     '仕掛時間
     Public EndTimeAddress As Long = 0       '完了時間
     Public ProbeAddress As Long = 0         'ﾌﾟﾛｰﾌﾞ使用回数先頭ｱﾄﾞﾚｽ
+    Public QuAddress As Long = 0            '品質ﾃﾞｰﾀ先頭ｱﾄﾞﾚｽ
 
     Public ElementNo As String = ""         '素子品番
     Public LotNo As String = ""             'ﾒｯｷﾛｯﾄNo.
@@ -25,17 +26,35 @@
     Public EndTime As String = ""           '完了時間
     Public ProbeData(9） As Long            '各ﾌﾟﾛｰﾌﾞ使用回数
 
+    Public WorkNo(4) As String
+    Public Icnikime(4) As String
+    Public KenchiResister(4) As String
+    Public KenchiKekka(4) As String
+    Public KenchiRetry(4) As String
+    Public ZenchoResister(4) As String
+    Public ZenchoKekka(4) As String
+    Public ZenchoRetry(4) As String
+    Public IndexNo As String
+
+    Public QuData(20) As String             '品質ﾃﾞｰﾀ
+
     Public StackData(13, 110) As String     '装置 直近n=100個分ﾃﾞｰﾀ
     Public StackCounter As Integer = 0      '装置 ｽﾀｯｸｶｳﾝﾀｰ
-    Public DataStackData(13, 110) As String '測定 直近n=100個分ﾃﾞｰﾀ
-    Public DataStackCounter As Integer = 0  '測定 ｽﾀｯｸｶｳﾝﾀｰ
+    Public QuStackData(13, 110) As String '測定 直近n=100個分ﾃﾞｰﾀ
+    Public QuStackCounter As Integer = 0  '測定 ｽﾀｯｸｶｳﾝﾀｰ
 
     Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
     Public DebugFlag As Boolean = True
     Public tmp0 As Long = 0
-    Public TmpLong(9) As Long
+    Public TmpLong(20) As Long
+    Public TmpInt(20) As Long
+
+
+
+
+
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         initialize()
@@ -157,19 +176,18 @@
             SaveData()
         End If
         '測定データトリガ監視
-        If PlcRead(DataTriggerAdress) <> 0 Then
-            PlcWrite(DataTriggerAdress, 0)
-            DataStackCounter += 1
-            'If Not DebugFlag Then
-            '    StartProcess()
-            '    GetProbeData()
-            '    StackSet()
-            'Else
-            '    StartProcessDebug()
-            '    GetProbeDataDebug()
-            '    StackSet()
-            'End If
-            'DrawChartSetubi()
+        If PlcRead(QuTriggerAdress) <> 0 Then
+            PlcWrite(QuTriggerAdress, 0)
+            QuStackCounter += 1
+            If Not DebugFlag Then
+                GetQuData()
+                QuStackSet()
+            Else
+                StartProcessDebug()
+                GetProbeDataDebug()
+                StackSet()
+            End If
+            DrawChartSetubi()
         End If
     End Sub
 
@@ -197,7 +215,7 @@
 
     Private Sub GetProbeData()
         PlcReadingFlag = True
-        PlcReadData(ProbeAddress, 8)
+        PlcReadDWord(ProbeAddress, 8)
         PlcReadingFlag = False
         For i As Integer = 0 To 7
             ProbeData(i) = TmpLong(i)
@@ -208,6 +226,30 @@
         PlcReadingFlag = True
         For i As Integer = 0 To 7
             ProbeData(i) = CLng(Int(Rnd(1) * 99999999))
+        Next
+        PlcReadingFlag = False
+    End Sub
+
+    Private Sub GetQuData()
+        PlcReadingFlag = True
+        PlcReadDWord(QuAddress, 12)
+        PlcReadWord(QuAddress + 13, 6)
+        PlcReadingFlag = False
+        For i As Integer = 0 To 11
+            QuData(i) = Trim(CStr(TmpLong(i)))
+        Next
+        For i As Integer = 0 To 6
+            QuData(12 + i) = Trim(CStr(TmpInt(i)))
+        Next
+    End Sub
+
+    Private Sub GetQuDataDebug()
+        PlcReadingFlag = True
+        For i As Integer = 0 To 11
+            QuData(i) = Trim(CStr(Int(Rnd(1) * 99999999)))
+        Next
+        For i As Integer = 0 To 6
+            QuData(12 + i) = Trim(CStr(Int(Rnd(1) * 99999999)))
         Next
         PlcReadingFlag = False
     End Sub
@@ -230,6 +272,37 @@
             StackCounter = 100
         End If
     End Sub
+
+
+    Private Sub QuStackSet()
+        For i As Integer = 0 To 3
+            StackData(0, QuStackCounter + i) = Trim(Str(Now))
+            StackData(1, QuStackCounter + i) = ElementNo
+            StackData(2, QuStackCounter + i) = LotNo
+            StackData(3, QuStackCounter + i) = WorkNo(i)
+            StackData(4, QuStackCounter + i) = Icnikime(i)
+            StackData(5, QuStackCounter + i) = KenchiResister(i)
+            StackData(6, QuStackCounter + i) = KenchiKekka(i)
+            StackData(7, QuStackCounter + i) = KenchiRetry(i)
+            StackData(8, QuStackCounter + i) = ZenchoResister(i)
+            StackData(9, QuStackCounter + i) = ZenchoKekka(i)
+            StackData(10, QuStackCounter + i) = ZenchoRetry(i)
+            StackData(11, QuStackCounter + i) = Trim(Str(i + 1))
+            StackData(12, QuStackCounter + i) = IndexNo
+        Next
+        For i As Integer = 5 To 12
+            StackData(i, StackCounter) = CStr(ProbeData(i - 5))
+        Next
+        If StackCounter > 100 Then
+            For i As Integer = 1 To 100
+                For j As Integer = 0 To 12
+                    StackData(j, i) = StackData(j, i + 1)
+                Next
+            Next
+            StackCounter = 100
+        End If
+    End Sub
+
 
     Public Sub DrawChartSetubi()
         For i As Integer = 0 To StackCounter
@@ -301,7 +374,7 @@
         End If
     End Function
 
-    Public Sub PlcReadData(address As Long, length As Integer)
+    Public Sub PlcReadDWord(address As Long, length As Integer)
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
         'シーケンサーのDMメモリーより「address」にて指定したアドレスの内容を「length」ダブルワード分の整数を読み込む
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
@@ -325,6 +398,29 @@
         End If
     End Sub
 
+    Public Sub PlcReadWord(address As Long, length As Integer)
+        '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+        'シーケンサーのDMメモリーより「address」にて指定したアドレスの内容を「length」ワード分の整数を読み込む
+        '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+        Dim tmp1(99) As Integer
+        If Not DebugFlag Then
+            Try
+                tmp1 = SysmacCJ.ReadMemoryWordInteger(OMRON.Compolet.SYSMAC.SysmacCJ.MemoryTypes.DM, address, length, OMRON.Compolet.SYSMAC.SysmacCJ.DataTypes.BIN)
+                For i As Integer = 0 To length
+                    TmpInt(i) = tmp1(i)
+                Next
+            Catch ex As Exception
+                If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
+                    Application.Exit()
+                End If
+                Application.Exit()
+            End Try
+        Else
+            For i As Integer = 0 To length
+                TmpInt(i) = 999999
+            Next i
+        End If
+    End Sub
 
     Public Function HexAsc(x As String) As String
         If Len(x) > 4 Then x = Strings.Right(x, 4)
