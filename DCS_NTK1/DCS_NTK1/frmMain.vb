@@ -26,17 +26,22 @@
     Public EndTime As String = ""           '完了時間
     Public ProbeData(9） As Long            '各ﾌﾟﾛｰﾌﾞ使用回数
 
-    Public WorkNo(4) As String
-    Public Icnikime(4) As String
-    Public KenchiResister(4) As String
-    Public KenchiKekka(4) As String
-    Public KenchiRetry(4) As String
-    Public ZenchoResister(4) As String
-    Public ZenchoKekka(4) As String
-    Public ZenchoRetry(4) As String
-    Public IndexNo As String
+    Public QuHizuke(4) As String
+    Public QuType(4) As String
+    Public QuLot(4) As String
+    Public QuWorkNo(4) As String
+    Public QuIcnikime(4) As String
+    Public QuKenchiResister(4) As String
+    Public QuKenchiKekka(4) As String
+    Public QuKenchiRetry(4) As String
+    Public QuZenchoResister(4) As String
+    Public QuZenchoKekka(4) As String
+    Public QuZenchoRetry(4) As String
+    Public QuPoshiton(4) As String
+    Public QuIndexNo(4) As String
+    Public QuZaika(4) As String
 
-    Public QuData(20) As String             '品質ﾃﾞｰﾀ
+    Public QuData(70) As String             '品質ﾃﾞｰﾀ
 
     Public StackData(13, 110) As String     '装置 直近n=100個分ﾃﾞｰﾀ
     Public StackCounter As Integer = 0      '装置 ｽﾀｯｸｶｳﾝﾀｰ
@@ -50,11 +55,6 @@
     Public tmp0 As Long = 0
     Public TmpLong(20) As Long
     Public TmpInt(20) As Long
-
-
-
-
-
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         initialize()
@@ -233,12 +233,12 @@
     Private Sub GetQuData()
         PlcReadingFlag = True
         PlcReadDWord(QuAddress, 12)
-        PlcReadWord(QuAddress + 13, 6)
+        PlcReadWord(QuAddress + 13, 31)
         PlcReadingFlag = False
         For i As Integer = 0 To 11
             QuData(i) = Trim(CStr(TmpLong(i)))
         Next
-        For i As Integer = 0 To 6
+        For i As Integer = 0 To 30
             QuData(12 + i) = Trim(CStr(TmpInt(i)))
         Next
     End Sub
@@ -248,11 +248,86 @@
         For i As Integer = 0 To 11
             QuData(i) = Trim(CStr(Int(Rnd(1) * 99999999)))
         Next
-        For i As Integer = 0 To 6
+        For i As Integer = 0 To 30
             QuData(12 + i) = Trim(CStr(Int(Rnd(1) * 99999999)))
         Next
         PlcReadingFlag = False
+        QuDataDecode()
     End Sub
+
+    Private Sub QuDataDecode()
+        'Public QuHizuke(4) As String
+        'Public QuType(4) As String
+        'Public QuLot(4) As String
+        'Public QuWorkNo(4) As String
+        'Public QuIcnikime(4) As String
+        'Public QuKenchiResister(4) As String
+        'Public QuKenchiKekka(4) As String
+        'Public QuKenchiRetry(4) As String
+        'Public QuZenchoResister(4) As String
+        'Public QuZenchoKekka(4) As String
+        'Public QuZenchoRetry(4) As String
+        'Public QuPoshiton(4) As String
+        'Public QuIndexNo As String
+        For i As Integer = 0 To 3
+            '日付
+            QuHizuke(i) = Trim(Str(Now))
+            '品番
+            QuType(i) = ElementNo
+            'ロット
+            QuLot(i) = LotNo
+            'ワークNo.
+            Dim tmp1 As String = "X"
+            If QuData(0) = "1" Then tmp1 = "A"
+            If QuData(0) = "2" Then tmp1 = "B"
+            If QuData(0) = "3" Then tmp1 = "C"
+            If QuData(0) = "4" Then tmp1 = "D"
+            If QuData(0) = "5" Then tmp1 = "E"
+            If QuData(0) = "6" Then tmp1 = "F"
+            QuWorkNo(i) = tmp1 & "-" & Trim(Str(Val(QuData(1)) + i))
+            '位置決め判定
+            If QuData(3 + i) = "0" Then
+                QuIcnikime(i) = "NG"
+            ElseIf QuData(3 + i) = "1" Then
+                QuIcnikime(i) = "OK"
+            Else
+                QuIcnikime(i) = "-"
+            End If
+            '検知抵抗 測定値
+            QuKenchiResister(i) = QuData(40 + i)
+            '検知抵抗 結果
+            If QuData(7 + i) = "0" Then
+                QuKenchiKekka(i) = "NG"
+            ElseIf QuData(7 + i) = "1" Then
+                QuKenchiKekka(i) = "OK"
+            Else
+                QuKenchiKekka(i) = "-"
+            End If
+            '検知抵抗 ﾘﾄﾗｲ
+            If QuData(19 + i) = "1" Then
+                QuKenchiRetry(i) = "R"
+            Else
+                QuKenchiRetry(i) = "-"
+            End If
+            '全長抵抗_測定値
+            Dim ZenchouMeas1 As String = QuData(44 + i)
+            Dim ZenchouMeas2 As String = QuData(48 + i)
+            Dim ZenchouJudge1 As String = QuData(11 + i)
+            Dim ZenchouJudge2 As String = QuData(15 + i)
+            Dim ZenchouRetry1 As String = QuData(23 + i)
+            Dim ZenchouRetry2 As String = QuData(27 + i)
+            If ZenchouJudge1 <> "0" And ZenchouJudge1 <> "1" And ZenchouJudge2 <> "0" And ZenchouJudge2 <> "1" Then
+                QuZenchoResister(i) = "-"
+            ElseIf (ZenchouJudge1 = "0" Or ZenchouJudge1 = "1") And ZenchouJudge2 <> "0" And ZenchouJudge2 <> "1" Then
+                QuZenchoResister(i) = ZenchouMeas1
+            Else
+                QuZenchoResister(i) = ZenchouMeas2
+            End If
+
+
+        Next i
+    End Sub
+
 
     Private Sub StackSet()
         StackData(0, StackCounter) = ElementNo
