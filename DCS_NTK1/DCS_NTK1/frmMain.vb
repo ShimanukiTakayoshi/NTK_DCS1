@@ -71,10 +71,10 @@
     Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = True
+    Public DebugFlag As Boolean = False
     Public tmp0 As Long = 0
     Public TmpLong(20) As Long
-    Public TmpInt(20) As Long
+    Public TmpInt(299) As Long
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         initialize()
@@ -155,6 +155,8 @@
     End Sub
 
     Private Sub timScan_Tick(sender As Object, e As EventArgs) Handles timScan.Tick
+        tmp0 = PlcRead(10301)
+        TextBox2.Text = Str(tmp0)
         If Not PlcReadingFlag Then
             Main()
         End If
@@ -231,105 +233,105 @@
 
 
 
-	Private Sub GetPlcData()
-		If Not DebugFlag Then
-			PlcReadingFlag = True
-			PlcReadWord(12000, 162)
-			PlcReadingFlag = False
-			'設備ﾃﾞｰﾀ読込
-			ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
-			LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
-			OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
-			For i As Short = 0 To 7
-				ProbeData(i) = CLng(Val("&H" & (Hex(TmpInt(i * 2 + 12)) & Hex(TmpInt(i * 2 + 13)))))
-			Next i
-			'品質ﾃﾞｰﾀ読込
-			SayaNo = CInt(TmpInt(100))
-			For i As Short = 0 To 3
-				SayaPosi(i) = CInt(TmpInt(101 + i))
-			Next
-			IndexNo = CInt(TmpInt(105))
-			For i As Short = 0 To 3
-				JudgeLead(i) = CInt(TmpInt(106 + i))
-			Next
-			For i As Short = 0 To 3
-				JudgeDet(i) = CInt(TmpInt(110 + i))
-			Next
-			For i As Short = 0 To 3
-				JudgeLen1(i) = CInt(TmpInt(114 + i))
-			Next
-			For i As Short = 0 To 3
-				JudgeLen2(i) = CInt(TmpInt(118 + i))
-			Next
-			For i As Short = 0 To 3
-				RetryDet(i) = CInt(TmpInt(122 + i))
-			Next
-			For i As Short = 0 To 3
-				RetryLen1(i) = CInt(TmpInt(126 + i))
-			Next
-			For i As Short = 0 To 3
-				RetryLen2(i) = CInt(TmpInt(130 + i))
-			Next
-			For i As Short = 0 To 3
-				Zaika(i) = CInt(TmpInt(134 + i))
-			Next
-			For i As Short = 0 To 3
-				ReDet(i) = HexAsc(Hex(TmpInt(140 + i * 2))) & HexAsc(Hex(TmpInt(141 + i * 2)))
-			Next
-			For i As Short = 0 To 3
-				ReLen1(i) = HexAsc(Hex(TmpInt(148 + i * 2))) & HexAsc(Hex(TmpInt(149 + i * 2)))
-			Next
-			For i As Short = 0 To 3
-				ReLen2(i) = HexAsc(Hex(TmpInt(156 + i * 2))) & HexAsc(Hex(TmpInt(157 + i * 2)))
-			Next
-		Else
-			ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
-			LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 1000)))
-			OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 1000)))
-			For i As Short = 0 To 7
-				ProbeData(i) = CLng((Int(Rnd(1) * 100000)))
-			Next i
-			'品質ﾃﾞｰﾀ読込
-			SayaNo = CInt(Int(Rnd(1) * 6) + 1)
-			For i As Short = 0 To 3
-				SayaPosi(i) = CInt(Int(Rnd(1) * 200) + 1)
-			Next
-			IndexNo = CInt(Int(Rnd(1) * 8) + 1)
-			For i As Short = 0 To 3
-				JudgeLead(i) = CInt(Int(Rnd(1) * 3))
-			Next
-			For i As Short = 0 To 3
-				JudgeDet(i) = CInt(Int(Rnd(1) * 3))
-			Next
-			For i As Short = 0 To 3
-				JudgeLen1(i) = CInt(Int(Rnd(1) * 3))
-			Next
-			For i As Short = 0 To 3
-				JudgeLen2(i) = CInt(Int(Rnd(1) * 3))
-			Next
-			For i As Short = 0 To 3
-				RetryDet(i) = CInt(Int(Rnd(1) * 2))
-			Next
-			For i As Short = 0 To 3
-				RetryLen1(i) = CInt(Int(Rnd(1) * 2))
-			Next
-			For i As Short = 0 To 3
-				RetryLen2(i) = CInt(Int(Rnd(1) * 2))
-			Next
-			For i As Short = 0 To 3
-				Zaika(i) = CInt(Int(Rnd(1) * 2))
-			Next
-			For i As Short = 0 To 3
-				ReDet(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-			Next
-			For i As Short = 0 To 3
-				ReLen1(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-			Next
-			For i As Short = 0 To 3
-				ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-			Next
-		End If
-	End Sub
+    Public Sub GetPlcData()
+        If Not DebugFlag Then
+            PlcReadingFlag = True
+            PlcReadWord(12000, 162)
+            PlcReadingFlag = False
+            '設備ﾃﾞｰﾀ読込
+            ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
+            LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
+            OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
+            For i As Short = 0 To 7
+                ProbeData(i) = CLng(Val("&H" & (Hex(TmpInt(i * 2 + 12)) & Hex(TmpInt(i * 2 + 13)))))
+            Next i
+            '品質ﾃﾞｰﾀ読込
+            SayaNo = CInt(TmpInt(100))
+            For i As Short = 0 To 3
+                SayaPosi(i) = CInt(TmpInt(101 + i))
+            Next
+            IndexNo = CInt(TmpInt(105))
+            For i As Short = 0 To 3
+                JudgeLead(i) = CInt(TmpInt(106 + i))
+            Next
+            For i As Short = 0 To 3
+                JudgeDet(i) = CInt(TmpInt(110 + i))
+            Next
+            For i As Short = 0 To 3
+                JudgeLen1(i) = CInt(TmpInt(114 + i))
+            Next
+            For i As Short = 0 To 3
+                JudgeLen2(i) = CInt(TmpInt(118 + i))
+            Next
+            For i As Short = 0 To 3
+                RetryDet(i) = CInt(TmpInt(122 + i))
+            Next
+            For i As Short = 0 To 3
+                RetryLen1(i) = CInt(TmpInt(126 + i))
+            Next
+            For i As Short = 0 To 3
+                RetryLen2(i) = CInt(TmpInt(130 + i))
+            Next
+            For i As Short = 0 To 3
+                Zaika(i) = CInt(TmpInt(134 + i))
+            Next
+            For i As Short = 0 To 3
+                ReDet(i) = HexAsc(Hex(TmpInt(140 + i * 2))) & HexAsc(Hex(TmpInt(141 + i * 2)))
+            Next
+            For i As Short = 0 To 3
+                ReLen1(i) = HexAsc(Hex(TmpInt(148 + i * 2))) & HexAsc(Hex(TmpInt(149 + i * 2)))
+            Next
+            For i As Short = 0 To 3
+                ReLen2(i) = HexAsc(Hex(TmpInt(156 + i * 2))) & HexAsc(Hex(TmpInt(157 + i * 2)))
+            Next
+        Else
+            ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
+            LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 1000)))
+            OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 1000)))
+            For i As Short = 0 To 7
+                ProbeData(i) = CLng((Int(Rnd(1) * 100000)))
+            Next i
+            '品質ﾃﾞｰﾀ読込
+            SayaNo = CInt(Int(Rnd(1) * 6) + 1)
+            For i As Short = 0 To 3
+                SayaPosi(i) = CInt(Int(Rnd(1) * 200) + 1)
+            Next
+            IndexNo = CInt(Int(Rnd(1) * 8) + 1)
+            For i As Short = 0 To 3
+                JudgeLead(i) = CInt(Int(Rnd(1) * 3))
+            Next
+            For i As Short = 0 To 3
+                JudgeDet(i) = CInt(Int(Rnd(1) * 3))
+            Next
+            For i As Short = 0 To 3
+                JudgeLen1(i) = CInt(Int(Rnd(1) * 3))
+            Next
+            For i As Short = 0 To 3
+                JudgeLen2(i) = CInt(Int(Rnd(1) * 3))
+            Next
+            For i As Short = 0 To 3
+                RetryDet(i) = CInt(Int(Rnd(1) * 2))
+            Next
+            For i As Short = 0 To 3
+                RetryLen1(i) = CInt(Int(Rnd(1) * 2))
+            Next
+            For i As Short = 0 To 3
+                RetryLen2(i) = CInt(Int(Rnd(1) * 2))
+            Next
+            For i As Short = 0 To 3
+                Zaika(i) = CInt(Int(Rnd(1) * 2))
+            Next
+            For i As Short = 0 To 3
+                ReDet(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+            Next
+            For i As Short = 0 To 3
+                ReLen1(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+            Next
+            For i As Short = 0 To 3
+                ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+            Next
+        End If
+    End Sub
 
 	Public Sub ChFormat()
 		'さやNoアルファベット変換
@@ -594,10 +596,10 @@
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
         'シーケンサーのDMメモリーより「address」にて指定したアドレスの内容を「length」ワード分の整数を読み込む
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
-        Dim tmp1(99) As Integer
+        Dim tmp1(299) As Integer
         If Not DebugFlag Then
             Try
-                tmp1 = SysmacCJ.ReadMemoryWordInteger(OMRON.Compolet.SYSMAC.SysmacCJ.MemoryTypes.DM, address, length, OMRON.Compolet.SYSMAC.SysmacCJ.DataTypes.BIN)
+                tmp1 = SysmacCJ.ReadMemoryWordInteger(OMRON.Compolet.SYSMAC.SysmacCJ.MemoryTypes.DM, address, length + 1, OMRON.Compolet.SYSMAC.SysmacCJ.DataTypes.BIN)
                 For i As Integer = 0 To length
                     TmpInt(i) = tmp1(i)
                 Next
@@ -707,5 +709,8 @@
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".BKF", InputString, True)
     End Sub
 
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        frmDebug.Show()
+    End Sub
 End Class
 

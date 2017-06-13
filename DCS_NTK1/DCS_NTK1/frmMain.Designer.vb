@@ -28,6 +28,8 @@ Partial Class frmMain
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.dgvEq = New System.Windows.Forms.DataGridView()
         Me.dgvQu = New System.Windows.Forms.DataGridView()
+        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.Button1 = New System.Windows.Forms.Button()
         CType(Me.dgvEq, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvQu, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -38,7 +40,7 @@ Partial Class frmMain
         Me.SysmacCJ.DeviceName = ""
         Me.SysmacCJ.HeartBeatTimer = CType(0, Long)
         Me.SysmacCJ.NetworkAddress = CType(0, Short)
-        Me.SysmacCJ.NodeAddress = CType(2, Short)
+        Me.SysmacCJ.NodeAddress = CType(1, Short)
         Me.SysmacCJ.ReceiveTimeLimit = CType(750, Long)
         Me.SysmacCJ.RetryCount = 0
         Me.SysmacCJ.UnitAddress = CType(0, Short)
@@ -75,11 +77,29 @@ Partial Class frmMain
         Me.dgvQu.Size = New System.Drawing.Size(240, 150)
         Me.dgvQu.TabIndex = 2
         '
+        'TextBox2
+        '
+        Me.TextBox2.Location = New System.Drawing.Point(930, 37)
+        Me.TextBox2.Name = "TextBox2"
+        Me.TextBox2.Size = New System.Drawing.Size(67, 19)
+        Me.TextBox2.TabIndex = 3
+        '
+        'Button1
+        '
+        Me.Button1.Location = New System.Drawing.Point(930, 2)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(67, 29)
+        Me.Button1.TabIndex = 4
+        Me.Button1.Text = "Button1"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(893, 673)
+        Me.ClientSize = New System.Drawing.Size(1026, 673)
+        Me.Controls.Add(Me.Button1)
+        Me.Controls.Add(Me.TextBox2)
         Me.Controls.Add(Me.dgvQu)
         Me.Controls.Add(Me.dgvEq)
         Me.Controls.Add(Me.TextBox1)
@@ -96,4 +116,6 @@ Partial Class frmMain
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents dgvEq As DataGridView
     Friend WithEvents dgvQu As DataGridView
+    Friend WithEvents TextBox2 As System.Windows.Forms.TextBox
+    Friend WithEvents Button1 As System.Windows.Forms.Button
 End Class
