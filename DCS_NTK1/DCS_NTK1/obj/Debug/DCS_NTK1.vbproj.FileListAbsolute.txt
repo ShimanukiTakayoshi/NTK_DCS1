@@ -26,3 +26,15 @@ C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.frmMai
 C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.Resources.resources
 C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.vbproj.GenerateResource.Cache
 C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe.licenses
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.exe.config
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.exe
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.pdb
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.xml
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.frmMain.resources
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.Resources.resources
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.vbproj.GenerateResource.Cache
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe.licenses
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.xml
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.pdb
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.vbprojResolveAssemblyReference.cache

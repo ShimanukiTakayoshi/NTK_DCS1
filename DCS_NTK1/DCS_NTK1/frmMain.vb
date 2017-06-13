@@ -8,11 +8,14 @@
     Public SaveTimeM As String = "26"      'データ保存ファイル切替時間(M)
     'PLC通信アドレス設定
     Public AckAddress As Long = 0           'PLCへ受信OK返答
-    Public StartTriggerAdress As Long = 0   'ｽﾀｰﾄﾄﾘｶﾞ
-    Public EndTriggerAdress As Long = 0     'ｴﾝﾄﾞﾄﾘｶﾞ
-    Public QuTriggerAdress As Long = 0      '品質ﾃﾞｰﾀﾄﾘｶﾞ
-    Public ElementNoAddress As Long = 0     '素子品番
-    Public LotNoAddress As Long = 0         'ﾒｯｷﾛｯﾄ
+	Public StartTriggerAdress As Long = 12200   'ｽﾀｰﾄﾄﾘｶﾞ
+	Public EndTriggerAdress As Long = 12201     'ｴﾝﾄﾞﾄﾘｶﾞ
+	Public QuTriggerAdress As Long = 12202      '品質ﾃﾞｰﾀﾄﾘｶﾞ
+	Public StartTriggerOkAdress As Long = 12210   'ｽﾀｰﾄﾄﾘｶﾞ受信OK
+	Public EndTriggerOkAdress As Long = 12211     'ｴﾝﾄﾞﾄﾘｶﾞ受信OK
+	Public QuTriggerOkAdress As Long = 12212      '品質ﾃﾞｰﾀﾄﾘｶﾞ受信OK
+	Public ElementNoAddress As Long = 0     '素子品番
+	Public LotNoAddress As Long = 0         'ﾒｯｷﾛｯﾄ
     Public OperatorAddress As Long = 0      '作業者
     Public StartTimeAddress As Long = 0     '仕掛時間
     Public EndTimeAddress As Long = 0       '完了時間
@@ -26,7 +29,24 @@
     Public EndTime As String = ""           '完了時間
     Public ProbeData(9） As Long            '各ﾌﾟﾛｰﾌﾞ使用回数
 
-    Public QuHizuke(4) As String
+	Public SayaNo As Integer = 0
+	Public SayaPosi(4) As Integer
+	Public IndexNo As Integer = 0
+	Public JudgeLead(4) As Integer
+	Public JudgeDet(4) As Integer
+	Public JudgeLen1(4) As Integer
+	Public JudgeLen2(4) As Integer
+	Public RetryLead(4) As Integer
+	Public RetryDet(4) As Integer
+	Public RetryLen1(4) As Integer
+	Public RetryLen2(4) As Integer
+	Public Zaika(4) As Integer
+	Public ReDet(4) As String
+	Public ReLen1(4) As String
+	Public ReLen2(4) As String
+	Public FormatData(100) As String
+
+	Public QuHizuke(4) As String
     Public QuType(4) As String
     Public QuLot(4) As String
     Public QuWorkNo(4) As String
@@ -41,12 +61,12 @@
     Public QuIndexNo(4) As String
     Public QuZaika(4) As String
 
-    Public QuData(70) As String             '品質ﾃﾞｰﾀ
+	Public QuData(4, 70) As String             '品質ﾃﾞｰﾀ
 
-    Public StackData(13, 110) As String     '装置 直近n=100個分ﾃﾞｰﾀ
+	Public StackData(13, 110) As String     '装置 直近n=100個分ﾃﾞｰﾀ
     Public StackCounter As Integer = 0      '装置 ｽﾀｯｸｶｳﾝﾀｰ
-    Public QuStackData(13, 110) As String '測定 直近n=100個分ﾃﾞｰﾀ
-    Public QuStackCounter As Integer = 0  '測定 ｽﾀｯｸｶｳﾝﾀｰ
+	Public QuStackData(500, 12) As String '測定 直近n=100個分ﾃﾞｰﾀ
+	Public QuStackCounter As Integer = 0  '測定 ｽﾀｯｸｶｳﾝﾀｰ
 
     Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
@@ -125,10 +145,10 @@
             dgvQu.Columns(i).DefaultCellStyle = cstyle1
             dgvQu.Columns(i).Width = 60
         Next i
-        For i As Integer = 0 To 99
-            dgvQu.Rows.Add("")
-        Next
-        dgvQu.RowHeadersVisible = False
+		For i As Integer = 0 To 500
+			dgvQu.Rows.Add("")
+		Next
+		dgvQu.RowHeadersVisible = False
         dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvQu.CurrentCell = Nothing         '選択されているセルをなくす
 
@@ -175,20 +195,15 @@
             DrawChartSetubi()
             SaveData()
         End If
-        '測定データトリガ監視
-        If PlcRead(QuTriggerAdress) <> 0 Then
-            PlcWrite(QuTriggerAdress, 0)
-            QuStackCounter += 1
-            If Not DebugFlag Then
-                GetQuData()
-                QuStackSet()
-            Else
-                StartProcessDebug()
-                GetProbeDataDebug()
-                StackSet()
-            End If
-            DrawChartSetubi()
-        End If
+		'測定データトリガ監視
+		If PlcRead(QuTriggerAdress) <> 0 Then
+			PlcWrite(QuTriggerAdress, 0)
+			QuStackCounter += 1
+			GetPlcData()
+			ChFormat()
+			QuStackSet()
+			DrawChartQu()
+		End If
     End Sub
 
     Public Sub StartProcess()
@@ -204,16 +219,214 @@
         EndTime = Trim(CStr(Now))
     End Sub
 
-    Public Sub StartProcessDebug()
-        PlcReadingFlag = True
-        ElementNo = "Element0"
-        LotNo = "Lot00000"
-        OperatorNo = "Operator"
-        StartTime = Trim(CStr(Now))
-        PlcReadingFlag = False
-    End Sub
+  Public Sub StartProcessDebug()
+    PlcReadingFlag = True
+    ElementNo = "Element0"
+    LotNo = "Lot00000"
+    OperatorNo = "Operator"
+    StartTime = Trim(CStr(Now))
+    PlcReadingFlag = False
+  End Sub
 
-    Private Sub GetProbeData()
+
+
+
+	Private Sub GetPlcData()
+		If Not DebugFlag Then
+			PlcReadingFlag = True
+			PlcReadWord(12000, 162)
+			PlcReadingFlag = False
+			'設備ﾃﾞｰﾀ読込
+			ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
+			LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
+			OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
+			For i As Short = 0 To 7
+				ProbeData(i) = CLng(Val("&H" & (Hex(TmpInt(i * 2 + 12)) & Hex(TmpInt(i * 2 + 13)))))
+			Next i
+			'品質ﾃﾞｰﾀ読込
+			SayaNo = CInt(TmpInt(100))
+			For i As Short = 0 To 3
+				SayaPosi(i) = CInt(TmpInt(101 + i))
+			Next
+			IndexNo = CInt(TmpInt(105))
+			For i As Short = 0 To 3
+				JudgeLead(i) = CInt(TmpInt(106 + i))
+			Next
+			For i As Short = 0 To 3
+				JudgeDet(i) = CInt(TmpInt(110 + i))
+			Next
+			For i As Short = 0 To 3
+				JudgeLen1(i) = CInt(TmpInt(114 + i))
+			Next
+			For i As Short = 0 To 3
+				JudgeLen2(i) = CInt(TmpInt(118 + i))
+			Next
+			For i As Short = 0 To 3
+				RetryDet(i) = CInt(TmpInt(122 + i))
+			Next
+			For i As Short = 0 To 3
+				RetryLen1(i) = CInt(TmpInt(126 + i))
+			Next
+			For i As Short = 0 To 3
+				RetryLen2(i) = CInt(TmpInt(130 + i))
+			Next
+			For i As Short = 0 To 3
+				Zaika(i) = CInt(TmpInt(134 + i))
+			Next
+			For i As Short = 0 To 3
+				ReDet(i) = HexAsc(Hex(TmpInt(140 + i * 2))) & HexAsc(Hex(TmpInt(141 + i * 2)))
+			Next
+			For i As Short = 0 To 3
+				ReLen1(i) = HexAsc(Hex(TmpInt(148 + i * 2))) & HexAsc(Hex(TmpInt(149 + i * 2)))
+			Next
+			For i As Short = 0 To 3
+				ReLen2(i) = HexAsc(Hex(TmpInt(156 + i * 2))) & HexAsc(Hex(TmpInt(157 + i * 2)))
+			Next
+		Else
+			ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
+			LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 1000)))
+			OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 1000)))
+			For i As Short = 0 To 7
+				ProbeData(i) = CLng((Int(Rnd(1) * 100000)))
+			Next i
+			'品質ﾃﾞｰﾀ読込
+			SayaNo = CInt(Int(Rnd(1) * 6) + 1)
+			For i As Short = 0 To 3
+				SayaPosi(i) = CInt(Int(Rnd(1) * 200) + 1)
+			Next
+			IndexNo = CInt(Int(Rnd(1) * 8) + 1)
+			For i As Short = 0 To 3
+				JudgeLead(i) = CInt(Int(Rnd(1) * 3))
+			Next
+			For i As Short = 0 To 3
+				JudgeDet(i) = CInt(Int(Rnd(1) * 3))
+			Next
+			For i As Short = 0 To 3
+				JudgeLen1(i) = CInt(Int(Rnd(1) * 3))
+			Next
+			For i As Short = 0 To 3
+				JudgeLen2(i) = CInt(Int(Rnd(1) * 3))
+			Next
+			For i As Short = 0 To 3
+				RetryDet(i) = CInt(Int(Rnd(1) * 2))
+			Next
+			For i As Short = 0 To 3
+				RetryLen1(i) = CInt(Int(Rnd(1) * 2))
+			Next
+			For i As Short = 0 To 3
+				RetryLen2(i) = CInt(Int(Rnd(1) * 2))
+			Next
+			For i As Short = 0 To 3
+				Zaika(i) = CInt(Int(Rnd(1) * 2))
+			Next
+			For i As Short = 0 To 3
+				ReDet(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+			Next
+			For i As Short = 0 To 3
+				ReLen1(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+			Next
+			For i As Short = 0 To 3
+				ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+			Next
+		End If
+	End Sub
+
+	Public Sub ChFormat()
+		'さやNoアルファベット変換
+		Dim s0 As String = ""
+		Dim s1 As String = ""
+		Select Case SayaNo
+			Case 1
+				s0 = "A"
+			Case 2
+				s0 = "B"
+			Case 3
+				s0 = "C"
+			Case 4
+				s0 = "D"
+			Case 5
+				s0 = "E"
+			Case 6
+				s0 = "F"
+			Case 7
+				s0 = "R1"
+			Case 8
+				s0 = "R2"
+			Case 9
+				s0 = "R3"
+			Case 10
+				s0 = "R4"
+			Case 11
+				s0 = "R5"
+			Case 12
+				s0 = "R6"
+			Case Else
+				s0 = "X"
+		End Select
+		'全長抵抗１or２選択
+		Dim ReLen(4) As String
+		Dim JudgeLen(4) As Integer
+		Dim RetryLen(4) As Integer
+		Dim a0 As Long = CLng(Val(ReLen1(0)) + Val(ReLen1(1)) + Val(ReLen1(2)) + Val(ReLen1(3)))
+		If a0 <> 0 Then
+			ReLen(0) = ReLen1(0) : ReLen(1) = ReLen1(1) : ReLen(2) = ReLen1(2) : ReLen(3) = ReLen1(3)
+			JudgeLen(0) = JudgeLen1(0) : JudgeLen(1) = JudgeLen1(1) : JudgeLen(2) = JudgeLen1(2) : JudgeLen(3) = JudgeLen1(3)
+			RetryLen(0) = RetryLen1(0) : RetryLen(1) = RetryLen1(1) : RetryLen(2) = RetryLen1(2) : RetryLen(3) = RetryLen1(3)
+		Else
+			ReLen(0) = ReLen2(0) : ReLen(1) = ReLen2(1) : ReLen(2) = ReLen2(2) : ReLen(3) = ReLen2(3)
+			JudgeLen(0) = JudgeLen2(0) : JudgeLen(1) = JudgeLen2(1) : JudgeLen(2) = JudgeLen2(2) : JudgeLen(3) = JudgeLen2(3)
+			RetryLen(0) = RetryLen2(0) : RetryLen(1) = RetryLen2(1) : RetryLen(2) = RetryLen2(2) : RetryLen(3) = RetryLen2(3)
+		End If
+		For i As Integer = 0 To 3
+			QuData(i, 0) = CType(Now, String)
+			QuData(i, 1) = ElementNo
+			QuData(i, 2) = LotNo
+			QuData(i, 3) = s0 & "-" & CType(SayaPosi(i), String)
+			Select Case JudgeLead(i)
+				Case 0
+					QuData(i, 4) = "NG"
+				Case 1
+					QuData(i, 4) = "OK"
+				Case Else
+					QuData(i, 4) = "--"
+			End Select
+			QuData(i, 5) = ReDet(i)
+			Select Case JudgeDet(i)
+				Case 0
+					QuData(i, 6) = "NG"
+				Case 1
+					QuData(i, 6) = "OK"
+				Case Else
+					QuData(i, 6) = "--"
+			End Select
+			Select Case RetryDet(i)
+				Case 1
+					QuData(i, 7) = "R"
+				Case Else
+					QuData(i, 7) = " "
+			End Select
+			QuData(i, 8) = ReLen(i)
+			Select Case JudgeLen(i)
+				Case 0
+					QuData(i, 9) = "NG"
+				Case 1
+					QuData(i, 9) = "OK"
+				Case Else
+					QuData(i, 9) = "--"
+			End Select
+			Select Case RetryLen(i)
+				Case 1
+					QuData(i, 10) = "R"
+				Case Else
+					QuData(i, 10) = " "
+			End Select
+			QuData(i, 11) = CType(i + 1, String)
+			QuData(i, 12) = CType(IndexNo, String)
+		Next i
+	End Sub
+
+
+	Private Sub GetProbeData()
         PlcReadingFlag = True
         PlcReadDWord(ProbeAddress, 8)
         PlcReadingFlag = False
@@ -230,106 +443,12 @@
         PlcReadingFlag = False
     End Sub
 
-    Private Sub GetQuData()
-        PlcReadingFlag = True
-        PlcReadDWord(QuAddress, 12)
-        PlcReadWord(QuAddress + 13, 31)
-        PlcReadingFlag = False
-        For i As Integer = 0 To 11
-            QuData(i) = Trim(CStr(TmpLong(i)))
-        Next
-        For i As Integer = 0 To 30
-            QuData(12 + i) = Trim(CStr(TmpInt(i)))
-        Next
-    End Sub
-
-    Private Sub GetQuDataDebug()
-        PlcReadingFlag = True
-        For i As Integer = 0 To 11
-            QuData(i) = Trim(CStr(Int(Rnd(1) * 99999999)))
-        Next
-        For i As Integer = 0 To 30
-            QuData(12 + i) = Trim(CStr(Int(Rnd(1) * 99999999)))
-        Next
-        PlcReadingFlag = False
-        QuDataDecode()
-    End Sub
-
-    Private Sub QuDataDecode()
-        'Public QuHizuke(4) As String
-        'Public QuType(4) As String
-        'Public QuLot(4) As String
-        'Public QuWorkNo(4) As String
-        'Public QuIcnikime(4) As String
-        'Public QuKenchiResister(4) As String
-        'Public QuKenchiKekka(4) As String
-        'Public QuKenchiRetry(4) As String
-        'Public QuZenchoResister(4) As String
-        'Public QuZenchoKekka(4) As String
-        'Public QuZenchoRetry(4) As String
-        'Public QuPoshiton(4) As String
-        'Public QuIndexNo As String
-        For i As Integer = 0 To 3
-            '日付
-            QuHizuke(i) = Trim(Str(Now))
-            '品番
-            QuType(i) = ElementNo
-            'ロット
-            QuLot(i) = LotNo
-            'ワークNo.
-            Dim tmp1 As String = "X"
-            If QuData(0) = "1" Then tmp1 = "A"
-            If QuData(0) = "2" Then tmp1 = "B"
-            If QuData(0) = "3" Then tmp1 = "C"
-            If QuData(0) = "4" Then tmp1 = "D"
-            If QuData(0) = "5" Then tmp1 = "E"
-            If QuData(0) = "6" Then tmp1 = "F"
-            QuWorkNo(i) = tmp1 & "-" & Trim(Str(Val(QuData(1)) + i))
-            '位置決め判定
-            If QuData(3 + i) = "0" Then
-                QuIcnikime(i) = "NG"
-            ElseIf QuData(3 + i) = "1" Then
-                QuIcnikime(i) = "OK"
-            Else
-                QuIcnikime(i) = "-"
-            End If
-            '検知抵抗 測定値
-            QuKenchiResister(i) = QuData(40 + i)
-            '検知抵抗 結果
-            If QuData(7 + i) = "0" Then
-                QuKenchiKekka(i) = "NG"
-            ElseIf QuData(7 + i) = "1" Then
-                QuKenchiKekka(i) = "OK"
-            Else
-                QuKenchiKekka(i) = "-"
-            End If
-            '検知抵抗 ﾘﾄﾗｲ
-            If QuData(19 + i) = "1" Then
-                QuKenchiRetry(i) = "R"
-            Else
-                QuKenchiRetry(i) = "-"
-            End If
-            '全長抵抗_測定値
-            Dim ZenchouMeas1 As String = QuData(44 + i)
-            Dim ZenchouMeas2 As String = QuData(48 + i)
-            Dim ZenchouJudge1 As String = QuData(11 + i)
-            Dim ZenchouJudge2 As String = QuData(15 + i)
-            Dim ZenchouRetry1 As String = QuData(23 + i)
-            Dim ZenchouRetry2 As String = QuData(27 + i)
-            If ZenchouJudge1 <> "0" And ZenchouJudge1 <> "1" And ZenchouJudge2 <> "0" And ZenchouJudge2 <> "1" Then
-                QuZenchoResister(i) = "-"
-            ElseIf (ZenchouJudge1 = "0" Or ZenchouJudge1 = "1") And ZenchouJudge2 <> "0" And ZenchouJudge2 <> "1" Then
-                QuZenchoResister(i) = ZenchouMeas1
-            Else
-                QuZenchoResister(i) = ZenchouMeas2
-            End If
 
 
-        Next i
-    End Sub
 
 
-    Private Sub StackSet()
+
+	Private Sub StackSet()
         StackData(0, StackCounter) = ElementNo
         StackData(1, StackCounter) = LotNo
         StackData(2, StackCounter) = OperatorNo
@@ -348,48 +467,46 @@
         End If
     End Sub
 
-
-    Private Sub QuStackSet()
-        For i As Integer = 0 To 3
-            StackData(0, QuStackCounter + i) = Trim(Str(Now))
-            StackData(1, QuStackCounter + i) = ElementNo
-            StackData(2, QuStackCounter + i) = LotNo
-            StackData(3, QuStackCounter + i) = WorkNo(i)
-            StackData(4, QuStackCounter + i) = Icnikime(i)
-            StackData(5, QuStackCounter + i) = KenchiResister(i)
-            StackData(6, QuStackCounter + i) = KenchiKekka(i)
-            StackData(7, QuStackCounter + i) = KenchiRetry(i)
-            StackData(8, QuStackCounter + i) = ZenchoResister(i)
-            StackData(9, QuStackCounter + i) = ZenchoKekka(i)
-            StackData(10, QuStackCounter + i) = ZenchoRetry(i)
-            StackData(11, QuStackCounter + i) = Trim(Str(i + 1))
-            StackData(12, QuStackCounter + i) = IndexNo
-        Next
-        For i As Integer = 5 To 12
-            StackData(i, StackCounter) = CStr(ProbeData(i - 5))
-        Next
-        If StackCounter > 100 Then
-            For i As Integer = 1 To 100
-                For j As Integer = 0 To 12
-                    StackData(j, i) = StackData(j, i + 1)
-                Next
-            Next
-            StackCounter = 100
-        End If
-    End Sub
+	Private Sub QuStackSet()
+		For i As Integer = 0 To 3
+			For j As Integer = 0 To 12
+				QuStackData(QuStackCounter * 4 + i, j) = QuData(i, j)
+			Next j
+		Next i
+		If QuStackCounter > 100 Then
+			For i As Integer = 1 To 100
+				For j As Integer = 0 To 12
+					QuStackData(i, j) = QuStackData(i + 4, j)
+				Next
+			Next
+			QuStackCounter = 100
+		End If
+	End Sub
 
 
-    Public Sub DrawChartSetubi()
-        For i As Integer = 0 To StackCounter
-            For j As Integer = 0 To 12
-                dgvEq.Item(j, i).Value = StackData(j, i + 1)
-            Next
-        Next
-    End Sub
+	Public Sub DrawChartSetubi()
+		For i As Integer = 0 To StackCounter
+			For j As Integer = 0 To 12
+				dgvEq.Item(j, i).Value = StackData(j, i + 1)
+			Next
+		Next
+	End Sub
 
-    'PLC通信
+	Public Sub DrawChartQu()
+		For i As Integer = 0 To StackCounter
+			For j As Integer = 0 To 12
+				dgvQu.Item(j, i * 4 + 0).Value = QuStackData((i + 1) * 4 + 0, j)
+				dgvQu.Item(j, i * 4 + 1).Value = QuStackData((i + 1) * 4 + 1, j)
+				dgvQu.Item(j, i * 4 + 2).Value = QuStackData((i + 1) * 4 + 2, j)
+				dgvQu.Item(j, i * 4 + 3).Value = QuStackData((i + 1) * 4 + 3, j)
+			Next
+		Next
+	End Sub
 
-    Public Function PlcRead(address As Long) As Long
+
+	'PLC通信
+
+	Public Function PlcRead(address As Long) As Long
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
         'シーケンサーのDMメモリーより「address」にて指定したアドレスの内容を読み込む
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
