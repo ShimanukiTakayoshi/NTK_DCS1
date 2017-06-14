@@ -71,7 +71,7 @@
     Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = False
+    Public DebugFlag As Boolean = True
     Public tmp0 As Long = 0
     Public TmpLong(20) As Long
     Public TmpInt(299) As Long
@@ -89,27 +89,41 @@
         dgvEq.Width = 900
         dgvEq.Height = 260
         Dim cstyle1 As New DataGridViewCellStyle
-        cstyle1.Alignment = DataGridViewContentAlignment.MiddleRight
+        cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
         Dim columnHeaderStyle As DataGridViewCellStyle = dgvEq.ColumnHeadersDefaultCellStyle
-        dgvEq.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
-        columnHeaderStyle.Font = New Font("ＭＳ ゴシック", 6)
-        dgvEq.Columns.Add("0", "素子" & vbCrLf & "品番")
-        dgvEq.Columns.Add("1", "ﾒｯｷﾛｯﾄ" & vbCrLf & "No.  ")
-        dgvEq.Columns.Add("2", "作業者")
+        dgvEq.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        columnHeaderStyle.Font = New Font("ＭＳ ゴシック", 8)
+        dgvEq.Columns.Add("0", "品番")
+        dgvEq.Columns.Add("1", "Lot")
+        dgvEq.Columns.Add("2", "ｵﾍﾟﾚｰﾀ")
         dgvEq.Columns.Add("3", "仕掛時間")
         dgvEq.Columns.Add("4", "完了時間")
-        dgvEq.Columns.Add("5", "検知抵抗" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        dgvEq.Columns.Add("6", "検知抵抗" & vbCrLf & "横ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        dgvEq.Columns.Add("7", "検知抵抗" & vbCrLf & "下ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        dgvEq.Columns.Add("8", "全長抵抗①" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        dgvEq.Columns.Add("9", "全長抵抗①" & vbCrLf & "下ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        dgvEq.Columns.Add("10", "全長抵抗②" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        dgvEq.Columns.Add("11", "全長抵抗②" & vbCrLf & "横ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        dgvEq.Columns.Add("12", "全長抵抗②" & vbCrLf & "斜めﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
+        dgvEq.Columns.Add("5", "検知上")
+        dgvEq.Columns.Add("6", "検知横")
+        dgvEq.Columns.Add("7", "検知下")
+        dgvEq.Columns.Add("8", "全長①上")
+        dgvEq.Columns.Add("9", "全長①下")
+        dgvEq.Columns.Add("10", "全長②上")
+        dgvEq.Columns.Add("11", "全長②横")
+        dgvEq.Columns.Add("12", "全長②斜")
+        'dgvEq.Columns.Add("0", "素子" & vbCrLf & "品番")
+        'dgvEq.Columns.Add("1", "ﾒｯｷﾛｯﾄ" & vbCrLf & "No.  ")
+        'dgvEq.Columns.Add("2", "作業者")
+        'dgvEq.Columns.Add("3", "仕掛時間")
+        'dgvEq.Columns.Add("4", "完了時間")
+        'dgvEq.Columns.Add("5", "検知抵抗" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
+        'dgvEq.Columns.Add("6", "検知抵抗" & vbCrLf & "横ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
+        'dgvEq.Columns.Add("7", "検知抵抗" & vbCrLf & "下ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
+        'dgvEq.Columns.Add("8", "全長抵抗①" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
+        'dgvEq.Columns.Add("9", "全長抵抗①" & vbCrLf & "下ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
+        'dgvEq.Columns.Add("10", "全長抵抗②" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
+        'dgvEq.Columns.Add("11", "全長抵抗②" & vbCrLf & "横ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
+        'dgvEq.Columns.Add("12", "全長抵抗②" & vbCrLf & "斜めﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
         For i As Integer = 0 To 12
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
             dgvEq.Columns(i).Width = 60
         Next i
+        dgvEq.Columns(2).Width = 65
         dgvEq.Columns(3).Width = 110
         dgvEq.Columns(4).Width = 110
         For i As Integer = 0 To 99
@@ -124,16 +138,16 @@
         dgvQu.Width = 1000
         dgvQu.Height = 400
         Dim cstyle2 As New DataGridViewCellStyle
-        cstyle1.Alignment = DataGridViewContentAlignment.MiddleRight
+        cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
         Dim columnHeaderStyle2 As DataGridViewCellStyle = dgvQu.ColumnHeadersDefaultCellStyle
-        dgvQu.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
-        columnHeaderStyle2.Font = New Font("ＭＳ ゴシック", 6)
+        dgvQu.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        columnHeaderStyle2.Font = New Font("ＭＳ ゴシック", 8)
         dgvQu.Columns.Add("0", "日付")
         dgvQu.Columns.Add("1", "品番")
         dgvQu.Columns.Add("2", "ﾛｯﾄNo.")
         dgvQu.Columns.Add("3", "ﾜｰｸNo")
         dgvQu.Columns.Add("4", "位置決め")
-        dgvQu.Columns.Add("5", "検知部抵抗")
+        dgvQu.Columns.Add("5", "検知抵抗")
         dgvQu.Columns.Add("6", "結果")
         dgvQu.Columns.Add("7", "ﾘﾄﾗｲ")
         dgvQu.Columns.Add("8", "全長抵抗")
@@ -148,7 +162,11 @@
 		For i As Integer = 0 To 500
 			dgvQu.Rows.Add("")
 		Next
-		dgvQu.RowHeadersVisible = False
+        dgvQu.Columns(0).Width = 110
+        dgvQu.Columns(1).Width = 70
+        dgvQu.Columns(2).Width = 70
+        dgvQu.Columns(3).Width = 70
+        dgvQu.RowHeadersVisible = False
         dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvQu.CurrentCell = Nothing         '選択されているセルをなくす
 
@@ -478,8 +496,11 @@
 		If QuStackCounter > 100 Then
 			For i As Integer = 1 To 100
 				For j As Integer = 0 To 12
-					QuStackData(i, j) = QuStackData(i + 4, j)
-				Next
+                    QuStackData(i * 4 + 0, j) = QuStackData((i + 1) * 4 + 0, j)
+                    QuStackData(i * 4 + 1, j) = QuStackData((i + 1) * 4 + 1, j)
+                    QuStackData(i * 4 + 2, j) = QuStackData((i + 1) * 4 + 2, j)
+                    QuStackData(i * 4 + 3, j) = QuStackData((i + 1) * 4 + 3, j)
+                Next
 			Next
 			QuStackCounter = 100
 		End If
