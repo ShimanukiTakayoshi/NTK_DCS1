@@ -7,23 +7,12 @@
     Public Gouki As Integer = 1            '号機番号
     Public SaveTimeH As String = "7"       'データ保存ファイル切替時間(H)
     Public SaveTimeM As String = "26"      'データ保存ファイル切替時間(M)
-    'PLC通信アドレス設定
-    Public AckAddress As Long = 0           'PLCへ受信OK返答
-    Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
-    Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
+	'PLC通信アドレス設定
+	Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
+	Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
     Public QuTriggerAdress As Long = 12300      '品質ﾃﾞｰﾀﾄﾘｶﾞ
-	Public StartTriggerOkAdress As Long = 12210   'ｽﾀｰﾄﾄﾘｶﾞ受信OK
-	Public EndTriggerOkAdress As Long = 12211     'ｴﾝﾄﾞﾄﾘｶﾞ受信OK
-	Public QuTriggerOkAdress As Long = 12212      '品質ﾃﾞｰﾀﾄﾘｶﾞ受信OK
-	Public ElementNoAddress As Long = 0     '素子品番
-	Public LotNoAddress As Long = 0         'ﾒｯｷﾛｯﾄ
-    Public OperatorAddress As Long = 0      '作業者
-    Public StartTimeAddress As Long = 0     '仕掛時間
-    Public EndTimeAddress As Long = 0       '完了時間
-    Public ProbeAddress As Long = 0         'ﾌﾟﾛｰﾌﾞ使用回数先頭ｱﾄﾞﾚｽ
-    Public QuAddress As Long = 0            '品質ﾃﾞｰﾀ先頭ｱﾄﾞﾚｽ
 
-    Public ElementNo As String = ""         '素子品番
+	Public ElementNo As String = ""         '素子品番
     Public LotNo As String = ""             'ﾒｯｷﾛｯﾄNo.
     Public OperatorNo As String = ""        '作業者
     Public StartTime As String = ""         '仕掛時間
@@ -48,21 +37,6 @@
     Public ReShift(24) As String
     Public FormatData(100) As String
 
-	Public QuHizuke(4) As String
-    Public QuType(4) As String
-    Public QuLot(4) As String
-    Public QuWorkNo(4) As String
-    Public QuIcnikime(4) As String
-    Public QuKenchiResister(4) As String
-    Public QuKenchiKekka(4) As String
-    Public QuKenchiRetry(4) As String
-    Public QuZenchoResister(4) As String
-    Public QuZenchoKekka(4) As String
-    Public QuZenchoRetry(4) As String
-    Public QuPoshiton(4) As String
-    Public QuIndexNo(4) As String
-    Public QuZaika(4) As String
-
 	Public QuData(4, 70) As String             '品質ﾃﾞｰﾀ
 
 	Public StackData(13, 110) As String     '装置 直近n=100個分ﾃﾞｰﾀ
@@ -76,8 +50,8 @@
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = False
-    Public tmp0 As Long = 0
+	Public DebugFlag As Boolean = True
+	Public tmp0 As Long = 0
     Public TmpLong(20) As Long
     Public TmpInt(299) As Long
 
@@ -111,24 +85,11 @@
         dgvEq.Columns.Add("10", "全長②上")
         dgvEq.Columns.Add("11", "全長②横")
         dgvEq.Columns.Add("12", "全長②斜")
-        'dgvEq.Columns.Add("0", "素子" & vbCrLf & "品番")
-        'dgvEq.Columns.Add("1", "ﾒｯｷﾛｯﾄ" & vbCrLf & "No.  ")
-        'dgvEq.Columns.Add("2", "作業者")
-        'dgvEq.Columns.Add("3", "仕掛時間")
-        'dgvEq.Columns.Add("4", "完了時間")
-        'dgvEq.Columns.Add("5", "検知抵抗" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        'dgvEq.Columns.Add("6", "検知抵抗" & vbCrLf & "横ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        'dgvEq.Columns.Add("7", "検知抵抗" & vbCrLf & "下ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        'dgvEq.Columns.Add("8", "全長抵抗①" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        'dgvEq.Columns.Add("9", "全長抵抗①" & vbCrLf & "下ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        'dgvEq.Columns.Add("10", "全長抵抗②" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        'dgvEq.Columns.Add("11", "全長抵抗②" & vbCrLf & "横ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        'dgvEq.Columns.Add("12", "全長抵抗②" & vbCrLf & "斜めﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        For i As Integer = 0 To 4
-            dgvEq.Columns(i).DefaultCellStyle = cstyle1
-            dgvEq.Columns(i).Width = 62
-        Next i
-        For i As Integer = 5 To 12
+		For i As Integer = 0 To 4
+			dgvEq.Columns(i).DefaultCellStyle = cstyle1
+			dgvEq.Columns(i).Width = 62
+		Next i
+		For i As Integer = 5 To 12
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
             dgvEq.Columns(i).Width = 70
         Next i
@@ -191,178 +152,149 @@
         End If
     End Sub
 
-    'Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles timScan.Tick
-    '    tmp0 = PlcRead(10301)
-    '    TextBox1.Text = Str(tmp0)
-    'End Sub
+	Public Sub Main()
+		'スタートトリガ監視
+		If PlcRead(StartTriggerAdress) <> 0 Then
+			PlcWrite(StartTriggerAdress, 0)
+			If Not EqStartedFlag Then
+				EqStartedFlag = True
+				StartTime = Trim(CStr(Now))
+				StackCounter += 1
+				GetPlcData()
+				EndTime = ""
+				For i As Integer = 0 To 7
+					ProbeData(i) = 0
+				Next
+				StackSet()
+				DrawChartSetubi()
+			End If
+		End If
+		'エンドトリガ監視
+		If PlcRead(EndTriggerAdress) <> 0 Then
+			PlcWrite(EndTriggerAdress, 0)
+			If EqStartedFlag Then
+				EndTime = Trim(CStr(Now))
+				GetPlcData()
+				StackSet()
+				DrawChartSetubi()
+				SaveData()
+				EqStartedFlag = False
+			End If
+		End If
+		'測定データトリガ監視
+		If PlcRead(QuTriggerAdress) <> 0 Then
+			PlcWrite(QuTriggerAdress, 0)
+			QuStackCounter += 1
+			GetPlcData()
+			ChFormat()
+			QuStackSet()
+			DrawChartQu()
+			SaveDataQu()
+		End If
+	End Sub
 
-    Public Sub Main()
-        'スタートトリガ監視
-        If PlcRead(StartTriggerAdress) <> 0 Then
-            PlcWrite(StartTriggerAdress, 0)
-            If Not EqStartedFlag Then
-                EqStartedFlag = True
-                StartTime = Trim(CStr(Now))
-                StackCounter += 1
-                GetPlcData()
-                EndTime = ""
-                For i As Integer = 0 To 7
-                    ProbeData(i) = 0
-                Next
-                StackSet()
-                DrawChartSetubi()
-            End If
-        End If
-        'エンドトリガ監視
-        If PlcRead(EndTriggerAdress) <> 0 Then
-            PlcWrite(EndTriggerAdress, 0)
-            If EqStartedFlag Then
-                EndTime = Trim(CStr(Now))
-                GetPlcData()
-                StackSet()
-                DrawChartSetubi()
-                SaveData()
-                EqStartedFlag = False
-            End If
-        End If
-        '測定データトリガ監視
-        If PlcRead(QuTriggerAdress) <> 0 Then
-            PlcWrite(QuTriggerAdress, 0)
-            QuStackCounter += 1
-            GetPlcData()
-            ChFormat()
-            QuStackSet()
-            DrawChartQu()
-            SaveDataQu()
-        End If
-    End Sub
-
-    Public Sub StartProcess()
-        PlcReadingFlag = True
-        ElementNo = PlcReadStrings(ElementNoAddress, 8)
-        LotNo = PlcReadStrings(LotNoAddress, 8)
-        OperatorNo = PlcReadStrings(LotNoAddress, 8)
-        PlcReadingFlag = False
-    End Sub
-
-    Public Sub EndProcess()
-        EndTime = Trim(CStr(Now))
-    End Sub
-
-  Public Sub StartProcessDebug()
-    PlcReadingFlag = True
-    ElementNo = "Element0"
-    LotNo = "Lot00000"
-    OperatorNo = "Operator"
-    StartTime = Trim(CStr(Now))
-    PlcReadingFlag = False
-  End Sub
-
-
-
-
-    Public Sub GetPlcData()
-        If Not DebugFlag Then
-            PlcReadingFlag = True
-            PlcReadWord(12000, 240)
-            PlcReadingFlag = False
-            '設備ﾃﾞｰﾀ読込
-            ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
-            LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
-            OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
-            For i As Short = 0 To 7
-                ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 13)) & Hex(TmpInt(i * 2 + 12))))
-            Next i
-            '品質ﾃﾞｰﾀ読込
-            SayaNo = CInt(TmpInt(100))
-            For i As Short = 0 To 3
-                SayaPosi(i) = CInt(TmpInt(101 + i))
-            Next
-            IndexNo = CInt(TmpInt(105))
-            For i As Short = 0 To 3
-                JudgeLead(i) = CInt(TmpInt(106 + i))
-            Next
-            For i As Short = 0 To 3
-                JudgeDet(i) = CInt(TmpInt(110 + i))
-            Next
-            For i As Short = 0 To 3
-                JudgeLen1(i) = CInt(TmpInt(114 + i))
-            Next
-            For i As Short = 0 To 3
-                JudgeLen2(i) = CInt(TmpInt(118 + i))
-            Next
-            For i As Short = 0 To 3
-                RetryDet(i) = CInt(TmpInt(122 + i))
-            Next
-            For i As Short = 0 To 3
-                RetryLen1(i) = CInt(TmpInt(126 + i))
-            Next
-            For i As Short = 0 To 3
-                RetryLen2(i) = CInt(TmpInt(130 + i))
-            Next
-            For i As Short = 0 To 3
-                Zaika(i) = CInt(TmpInt(134 + i))
-            Next
-            For i As Short = 0 To 3
-                ReDet(i) = HexAsc(Hex(TmpInt(140 + i * 2))) & HexAsc(Hex(TmpInt(141 + i * 2)))
-            Next
-            For i As Short = 0 To 3
-                ReLen1(i) = HexAsc(Hex(TmpInt(148 + i * 2))) & HexAsc(Hex(TmpInt(149 + i * 2)))
-            Next
-            For i As Short = 0 To 3
-                ReLen2(i) = HexAsc(Hex(TmpInt(156 + i * 2))) & HexAsc(Hex(TmpInt(157 + i * 2)))
-            Next
-            For i As Short = 0 To 23
-                ReShift(i) = HexAsc(Hex(TmpInt(170 + i * 2))) & HexAsc(Hex(TmpInt(171 + i * 2)))
-            Next
-        Else
-            ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
-            LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 1000)))
-            OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 1000)))
-            For i As Short = 0 To 7
-                ProbeData(i) = CLng((Int(Rnd(1) * 100000)))
-            Next i
-            '品質ﾃﾞｰﾀ読込
-            SayaNo = CInt(Int(Rnd(1) * 6) + 1)
-            For i As Short = 0 To 3
-                SayaPosi(i) = CInt(Int(Rnd(1) * 200) + 1)
-            Next
-            IndexNo = CInt(Int(Rnd(1) * 8) + 1)
-            For i As Short = 0 To 3
-                JudgeLead(i) = CInt(Int(Rnd(1) * 3))
-            Next
-            For i As Short = 0 To 3
-                JudgeDet(i) = CInt(Int(Rnd(1) * 3))
-            Next
-            For i As Short = 0 To 3
-                JudgeLen1(i) = CInt(Int(Rnd(1) * 3))
-            Next
-            For i As Short = 0 To 3
-                JudgeLen2(i) = CInt(Int(Rnd(1) * 3))
-            Next
-            For i As Short = 0 To 3
-                RetryDet(i) = CInt(Int(Rnd(1) * 2))
-            Next
-            For i As Short = 0 To 3
-                RetryLen1(i) = CInt(Int(Rnd(1) * 2))
-            Next
-            For i As Short = 0 To 3
-                RetryLen2(i) = CInt(Int(Rnd(1) * 2))
-            Next
-            For i As Short = 0 To 3
-                Zaika(i) = CInt(Int(Rnd(1) * 2))
-            Next
-            For i As Short = 0 To 3
-                ReDet(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-            Next
-            For i As Short = 0 To 3
-                ReLen1(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-            Next
-            For i As Short = 0 To 3
-                ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-            Next
-        End If
-    End Sub
+	Public Sub GetPlcData()
+		If Not DebugFlag Then
+			PlcReadingFlag = True
+			PlcReadWord(12000, 240)
+			PlcReadingFlag = False
+			'設備ﾃﾞｰﾀ読込
+			ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
+			LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
+			OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
+			For i As Short = 0 To 7
+				ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 13)) & Hex(TmpInt(i * 2 + 12))))
+			Next i
+			'品質ﾃﾞｰﾀ読込
+			SayaNo = CInt(TmpInt(100))
+			For i As Short = 0 To 3
+				SayaPosi(i) = CInt(TmpInt(101 + i))
+			Next
+			IndexNo = CInt(TmpInt(105))
+			For i As Short = 0 To 3
+				JudgeLead(i) = CInt(TmpInt(106 + i))
+			Next
+			For i As Short = 0 To 3
+				JudgeDet(i) = CInt(TmpInt(110 + i))
+			Next
+			For i As Short = 0 To 3
+				JudgeLen1(i) = CInt(TmpInt(114 + i))
+			Next
+			For i As Short = 0 To 3
+				JudgeLen2(i) = CInt(TmpInt(118 + i))
+			Next
+			For i As Short = 0 To 3
+				RetryDet(i) = CInt(TmpInt(122 + i))
+			Next
+			For i As Short = 0 To 3
+				RetryLen1(i) = CInt(TmpInt(126 + i))
+			Next
+			For i As Short = 0 To 3
+				RetryLen2(i) = CInt(TmpInt(130 + i))
+			Next
+			For i As Short = 0 To 3
+				Zaika(i) = CInt(TmpInt(134 + i))
+			Next
+			For i As Short = 0 To 3
+				ReDet(i) = HexAsc(Hex(TmpInt(140 + i * 2))) & HexAsc(Hex(TmpInt(141 + i * 2)))
+			Next
+			For i As Short = 0 To 3
+				ReLen1(i) = HexAsc(Hex(TmpInt(148 + i * 2))) & HexAsc(Hex(TmpInt(149 + i * 2)))
+			Next
+			For i As Short = 0 To 3
+				ReLen2(i) = HexAsc(Hex(TmpInt(156 + i * 2))) & HexAsc(Hex(TmpInt(157 + i * 2)))
+			Next
+			For i As Short = 0 To 23
+				ReShift(i) = HexAsc(Hex(TmpInt(170 + i * 2))) & HexAsc(Hex(TmpInt(171 + i * 2)))
+			Next
+		Else
+			ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
+			LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 1000)))
+			OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 1000)))
+			For i As Short = 0 To 7
+				ProbeData(i) = CLng((Int(Rnd(1) * 100000)))
+			Next i
+			'品質ﾃﾞｰﾀ読込
+			SayaNo = CInt(Int(Rnd(1) * 6) + 1)
+			For i As Short = 0 To 3
+				SayaPosi(i) = CInt(Int(Rnd(1) * 200) + 1)
+			Next
+			IndexNo = CInt(Int(Rnd(1) * 8) + 1)
+			For i As Short = 0 To 3
+				JudgeLead(i) = CInt(Int(Rnd(1) * 3))
+			Next
+			For i As Short = 0 To 3
+				JudgeDet(i) = CInt(Int(Rnd(1) * 3))
+			Next
+			For i As Short = 0 To 3
+				JudgeLen1(i) = CInt(Int(Rnd(1) * 3))
+			Next
+			For i As Short = 0 To 3
+				JudgeLen2(i) = CInt(Int(Rnd(1) * 3))
+			Next
+			For i As Short = 0 To 3
+				RetryDet(i) = CInt(Int(Rnd(1) * 2))
+			Next
+			For i As Short = 0 To 3
+				RetryLen1(i) = CInt(Int(Rnd(1) * 2))
+			Next
+			For i As Short = 0 To 3
+				RetryLen2(i) = CInt(Int(Rnd(1) * 2))
+			Next
+			For i As Short = 0 To 3
+				Zaika(i) = CInt(Int(Rnd(1) * 2))
+			Next
+			For i As Short = 0 To 3
+				ReDet(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+			Next
+			For i As Short = 0 To 3
+				ReLen1(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+			Next
+			For i As Short = 0 To 3
+				ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+			Next
+		End If
+	End Sub
 
 	Public Sub ChFormat()
 		'さやNoアルファベット変換
@@ -458,42 +390,24 @@
 		Next i
 	End Sub
 
-
-	Private Sub GetProbeData()
-        PlcReadingFlag = True
-        PlcReadDWord(ProbeAddress, 8)
-        PlcReadingFlag = False
-        For i As Integer = 0 To 7
-            ProbeData(i) = TmpLong(i)
-        Next
-    End Sub
-
-    Private Sub GetProbeDataDebug()
-        PlcReadingFlag = True
-        For i As Integer = 0 To 7
-            ProbeData(i) = CLng(Int(Rnd(1) * 99999999))
-        Next
-        PlcReadingFlag = False
-    End Sub
-
-    Private Sub StackSet()
-        StackData(0, StackCounter) = ElementNo
-        StackData(1, StackCounter) = LotNo
-        StackData(2, StackCounter) = OperatorNo
-        StackData(3, StackCounter) = StartTime
-        StackData(4, StackCounter) = EndTime
-        For i As Integer = 5 To 12
-            StackData(i, StackCounter) = CStr(ProbeData(i - 5))
-        Next
-        If StackCounter > 100 Then
-            For i As Integer = 1 To 100
-                For j As Integer = 0 To 12
-                    StackData(j, i) = StackData(j, i + 1)
-                Next
-            Next
-            StackCounter = 100
-        End If
-    End Sub
+	Private Sub StackSet()
+		StackData(0, StackCounter) = ElementNo
+		StackData(1, StackCounter) = LotNo
+		StackData(2, StackCounter) = OperatorNo
+		StackData(3, StackCounter) = StartTime
+		StackData(4, StackCounter) = EndTime
+		For i As Integer = 5 To 12
+			StackData(i, StackCounter) = CStr(ProbeData(i - 5))
+		Next
+		If StackCounter > 100 Then
+			For i As Integer = 1 To 100
+				For j As Integer = 0 To 12
+					StackData(j, i) = StackData(j, i + 1)
+				Next
+			Next
+			StackCounter = 100
+		End If
+	End Sub
 
 	Private Sub QuStackSet()
 		For i As Integer = 0 To 3
@@ -514,7 +428,6 @@
 		End If
 	End Sub
 
-
 	Public Sub DrawChartSetubi()
 		For i As Integer = 0 To StackCounter
 			For j As Integer = 0 To 12
@@ -533,7 +446,6 @@
             Next
         Next
 	End Sub
-
 
 	'PLC通信
 
