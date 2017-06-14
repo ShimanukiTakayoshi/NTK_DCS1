@@ -3,6 +3,7 @@
     Public SaveFolder As String = "c:\NTK" 'CSVファイル保存先メインフォルダ
     Public SaveSubFolder As String = ""    'CSVファイル保存先サブホルダ
     Public SaveFileName As String = ""     'CSVファイル名
+    Public SaveFileNameQu As String = ""     'CSVファイル名
     Public Gouki As Integer = 1            '号機番号
     Public SaveTimeH As String = "7"       'データ保存ファイル切替時間(H)
     Public SaveTimeM As String = "26"      'データ保存ファイル切替時間(M)
@@ -43,8 +44,9 @@
 	Public Zaika(4) As Integer
 	Public ReDet(4) As String
 	Public ReLen1(4) As String
-	Public ReLen2(4) As String
-	Public FormatData(100) As String
+    Public ReLen2(4) As String
+    Public ReShift(24) As String
+    Public FormatData(100) As String
 
 	Public QuHizuke(4) As String
     Public QuType(4) As String
@@ -70,8 +72,9 @@
 
     Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
+    Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = True
+    Public DebugFlag As Boolean = False
     Public tmp0 As Long = 0
     Public TmpLong(20) As Long
     Public TmpInt(299) As Long
@@ -173,7 +176,7 @@
     End Sub
 
     Private Sub timScan_Tick(sender As Object, e As EventArgs) Handles timScan.Tick
-        tmp0 = PlcRead(10301)
+        tmp0 = PlcRead(10410)
         TextBox2.Text = Str(tmp0)
         If Not PlcReadingFlag Then
             Main()
@@ -222,8 +225,9 @@
 			GetPlcData()
 			ChFormat()
 			QuStackSet()
-			DrawChartQu()
-		End If
+            DrawChartQu()
+            SaveDataQu()
+        End If
     End Sub
 
     Public Sub StartProcess()
@@ -254,7 +258,7 @@
     Public Sub GetPlcData()
         If Not DebugFlag Then
             PlcReadingFlag = True
-            PlcReadWord(12000, 162)
+            PlcReadWord(12000, 240)
             PlcReadingFlag = False
             '設備ﾃﾞｰﾀ読込
             ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
@@ -301,6 +305,9 @@
             Next
             For i As Short = 0 To 3
                 ReLen2(i) = HexAsc(Hex(TmpInt(156 + i * 2))) & HexAsc(Hex(TmpInt(157 + i * 2)))
+            Next
+            For i As Short = 0 To 23
+                ReShift(i) = HexAsc(Hex(TmpInt(170 + i * 2))) & HexAsc(Hex(TmpInt(171 + i * 2)))
             Next
         Else
             ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
@@ -463,12 +470,7 @@
         PlcReadingFlag = False
     End Sub
 
-
-
-
-
-
-	Private Sub StackSet()
+    Private Sub StackSet()
         StackData(0, StackCounter) = ElementNo
         StackData(1, StackCounter) = LotNo
         StackData(2, StackCounter) = OperatorNo
@@ -705,6 +707,17 @@
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".BKF", Title, True)
     End Sub
 
+    Public Sub CreateSaveFileNameQu()
+        '保存ファイル生成
+        Dim dt As DateTime = DateTime.Now
+        Dim b As String = dt.ToString
+        SaveFileNameQu = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
+        Dim Title As String = ""
+        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "Hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", Title, True)
+    End Sub
+
     Public Sub SaveData()
         '起動初回確認
         If SaveDataFirstFlag Then
@@ -728,6 +741,39 @@
         InputString = InputString & vbCrLf
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".CSV", InputString, True)
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".BKF", InputString, True)
+    End Sub
+
+    Public Sub SaveDataQu()
+        '起動初回確認
+        If SaveDataFirstFlagQu Then
+            CreateSaveFolder()
+            CreateSaveFileNameQu()
+            SaveDataFirstFlagQu = False
+        End If
+        '現在時刻確認
+        Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
+        Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
+        Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
+        If NowDate <> SaveFileNameQu And Val(NowTime) >= Val(SaveTimeH + SaveTimeM) Then
+            If NowYearMonth <> SaveSubFolder Then CreateSaveFolder()
+            CreateSaveFileNameQu()
+        End If
+        'データ保存
+        For i As Integer = 0 To 3
+            For j As Integer = 0 To 12
+                QuStackData(QuStackCounter * 4 + i, j) = QuData(i, j)
+            Next j
+        Next i
+
+        For i As Integer = 0 To 3
+            Dim InputString As String = ""
+            For j As Integer = 0 To 12
+                InputString = InputString + QuStackData(StackCounter * 4 + i, j) + ","
+            Next
+            InputString = InputString & vbCrLf
+            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", InputString, True)
+            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", InputString, True)
+        Next
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
