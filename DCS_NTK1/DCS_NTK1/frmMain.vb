@@ -9,9 +9,9 @@
     Public SaveTimeM As String = "26"      'データ保存ファイル切替時間(M)
     'PLC通信アドレス設定
     Public AckAddress As Long = 0           'PLCへ受信OK返答
-	Public StartTriggerAdress As Long = 12200   'ｽﾀｰﾄﾄﾘｶﾞ
-	Public EndTriggerAdress As Long = 12201     'ｴﾝﾄﾞﾄﾘｶﾞ
-	Public QuTriggerAdress As Long = 12202      '品質ﾃﾞｰﾀﾄﾘｶﾞ
+    Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
+    Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
+    Public QuTriggerAdress As Long = 12300      '品質ﾃﾞｰﾀﾄﾘｶﾞ
 	Public StartTriggerOkAdress As Long = 12210   'ｽﾀｰﾄﾄﾘｶﾞ受信OK
 	Public EndTriggerOkAdress As Long = 12211     'ｴﾝﾄﾞﾄﾘｶﾞ受信OK
 	Public QuTriggerOkAdress As Long = 12212      '品質ﾃﾞｰﾀﾄﾘｶﾞ受信OK
@@ -68,7 +68,9 @@
 	Public StackData(13, 110) As String     '装置 直近n=100個分ﾃﾞｰﾀ
     Public StackCounter As Integer = 0      '装置 ｽﾀｯｸｶｳﾝﾀｰ
 	Public QuStackData(500, 12) As String '測定 直近n=100個分ﾃﾞｰﾀ
-	Public QuStackCounter As Integer = 0  '測定 ｽﾀｯｸｶｳﾝﾀｰ
+    Public QuStackCounter As Integer = 0  '測定 ｽﾀｯｸｶｳﾝﾀｰ
+
+    Public EqStartedFlag As Boolean = False '設備ﾃﾞｰﾀ集計中ﾌﾗｸﾞ
 
     Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
@@ -89,8 +91,8 @@
         Me.Width = 1024
         Me.Height = 768
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
-        dgvEq.Width = 900
-        dgvEq.Height = 260
+        dgvEq.Width = 990
+        dgvEq.Height = 263
         Dim cstyle1 As New DataGridViewCellStyle
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
         Dim columnHeaderStyle As DataGridViewCellStyle = dgvEq.ColumnHeadersDefaultCellStyle
@@ -122,9 +124,13 @@
         'dgvEq.Columns.Add("10", "全長抵抗②" & vbCrLf & "上ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
         'dgvEq.Columns.Add("11", "全長抵抗②" & vbCrLf & "横ﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
         'dgvEq.Columns.Add("12", "全長抵抗②" & vbCrLf & "斜めﾌﾟﾛｰﾌﾞ" & vbCrLf & "使用回数")
-        For i As Integer = 0 To 12
+        For i As Integer = 0 To 4
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
-            dgvEq.Columns(i).Width = 60
+            dgvEq.Columns(i).Width = 62
+        Next i
+        For i As Integer = 5 To 12
+            dgvEq.Columns(i).DefaultCellStyle = cstyle1
+            dgvEq.Columns(i).Width = 70
         Next i
         dgvEq.Columns(2).Width = 65
         dgvEq.Columns(3).Width = 110
@@ -138,8 +144,8 @@
         '品質結果ﾃﾞｰﾀｼｰﾄ
         DGVClear(dgvQu)
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
-        dgvQu.Width = 1000
-        dgvQu.Height = 400
+        dgvQu.Width = 945
+        dgvQu.Height = 410
         Dim cstyle2 As New DataGridViewCellStyle
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
         Dim columnHeaderStyle2 As DataGridViewCellStyle = dgvQu.ColumnHeadersDefaultCellStyle
@@ -160,7 +166,7 @@
         dgvQu.Columns.Add("12", "ｲﾝﾃﾞｯｸｽ治具No.")
         For i As Integer = 0 To 12
             dgvQu.Columns(i).DefaultCellStyle = cstyle1
-            dgvQu.Columns(i).Width = 60
+            dgvQu.Columns(i).Width = 62
         Next i
 		For i As Integer = 0 To 500
 			dgvQu.Rows.Add("")
@@ -169,6 +175,8 @@
         dgvQu.Columns(1).Width = 70
         dgvQu.Columns(2).Width = 70
         dgvQu.Columns(3).Width = 70
+        dgvQu.Columns(5).Width = 85
+        dgvQu.Columns(8).Width = 85
         dgvQu.RowHeadersVisible = False
         dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvQu.CurrentCell = Nothing         '選択されているセルをなくす
@@ -192,39 +200,38 @@
         'スタートトリガ監視
         If PlcRead(StartTriggerAdress) <> 0 Then
             PlcWrite(StartTriggerAdress, 0)
-            StackCounter += 1
-            If Not DebugFlag Then
-                StartProcess()
-                GetProbeData()
+            If Not EqStartedFlag Then
+                EqStartedFlag = True
+                StartTime = Trim(CStr(Now))
+                StackCounter += 1
+                GetPlcData()
+                EndTime = ""
+                For i As Integer = 0 To 7
+                    ProbeData(i) = 0
+                Next
                 StackSet()
-            Else
-                StartProcessDebug()
-                GetProbeDataDebug()
-                StackSet()
+                DrawChartSetubi()
             End If
-            DrawChartSetubi()
         End If
         'エンドトリガ監視
         If PlcRead(EndTriggerAdress) <> 0 Then
             PlcWrite(EndTriggerAdress, 0)
-            EndProcess()
-            If Not DebugFlag Then
-                GetProbeData()
+            If EqStartedFlag Then
+                EndTime = Trim(CStr(Now))
+                GetPlcData()
                 StackSet()
-            Else
-                GetProbeDataDebug()
-                StackSet()
+                DrawChartSetubi()
+                SaveData()
+                EqStartedFlag = False
             End If
-            DrawChartSetubi()
-            SaveData()
         End If
-		'測定データトリガ監視
-		If PlcRead(QuTriggerAdress) <> 0 Then
-			PlcWrite(QuTriggerAdress, 0)
-			QuStackCounter += 1
-			GetPlcData()
-			ChFormat()
-			QuStackSet()
+        '測定データトリガ監視
+        If PlcRead(QuTriggerAdress) <> 0 Then
+            PlcWrite(QuTriggerAdress, 0)
+            QuStackCounter += 1
+            GetPlcData()
+            ChFormat()
+            QuStackSet()
             DrawChartQu()
             SaveDataQu()
         End If
@@ -235,7 +242,6 @@
         ElementNo = PlcReadStrings(ElementNoAddress, 8)
         LotNo = PlcReadStrings(LotNoAddress, 8)
         OperatorNo = PlcReadStrings(LotNoAddress, 8)
-        StartTime = Trim(CStr(Now))
         PlcReadingFlag = False
     End Sub
 
@@ -265,7 +271,7 @@
             LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
             OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
             For i As Short = 0 To 7
-                ProbeData(i) = CLng(Val("&H" & (Hex(TmpInt(i * 2 + 12)) & Hex(TmpInt(i * 2 + 13)))))
+                ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 13)) & Hex(TmpInt(i * 2 + 12))))
             Next i
             '品質ﾃﾞｰﾀ読込
             SayaNo = CInt(TmpInt(100))
@@ -518,14 +524,14 @@
 	End Sub
 
 	Public Sub DrawChartQu()
-		For i As Integer = 0 To StackCounter
-			For j As Integer = 0 To 12
-				dgvQu.Item(j, i * 4 + 0).Value = QuStackData((i + 1) * 4 + 0, j)
-				dgvQu.Item(j, i * 4 + 1).Value = QuStackData((i + 1) * 4 + 1, j)
-				dgvQu.Item(j, i * 4 + 2).Value = QuStackData((i + 1) * 4 + 2, j)
-				dgvQu.Item(j, i * 4 + 3).Value = QuStackData((i + 1) * 4 + 3, j)
-			Next
-		Next
+        For i As Integer = 0 To QuStackCounter
+            For j As Integer = 0 To 12
+                dgvQu.Item(j, i * 4 + 0).Value = QuStackData((i + 1) * 4 + 0, j)
+                dgvQu.Item(j, i * 4 + 1).Value = QuStackData((i + 1) * 4 + 1, j)
+                dgvQu.Item(j, i * 4 + 2).Value = QuStackData((i + 1) * 4 + 2, j)
+                dgvQu.Item(j, i * 4 + 3).Value = QuStackData((i + 1) * 4 + 3, j)
+            Next
+        Next
 	End Sub
 
 
@@ -759,16 +765,11 @@
             CreateSaveFileNameQu()
         End If
         'データ保存
+        Dim InputString As String = ""
         For i As Integer = 0 To 3
+            InputString = ""
             For j As Integer = 0 To 12
-                QuStackData(QuStackCounter * 4 + i, j) = QuData(i, j)
-            Next j
-        Next i
-
-        For i As Integer = 0 To 3
-            Dim InputString As String = ""
-            For j As Integer = 0 To 12
-                InputString = InputString + QuStackData(StackCounter * 4 + i, j) + ","
+                InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
             Next
             InputString = InputString & vbCrLf
             My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", InputString, True)

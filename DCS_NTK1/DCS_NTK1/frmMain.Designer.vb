@@ -71,7 +71,7 @@ Partial Class frmMain
         'dgvQu
         '
         Me.dgvQu.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvQu.Location = New System.Drawing.Point(12, 298)
+        Me.dgvQu.Location = New System.Drawing.Point(12, 283)
         Me.dgvQu.Name = "dgvQu"
         Me.dgvQu.RowTemplate.Height = 21
         Me.dgvQu.Size = New System.Drawing.Size(240, 150)
@@ -79,18 +79,18 @@ Partial Class frmMain
         '
         'TextBox2
         '
-        Me.TextBox2.Location = New System.Drawing.Point(930, 37)
+        Me.TextBox2.Location = New System.Drawing.Point(960, 318)
         Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(67, 19)
+        Me.TextBox2.Size = New System.Drawing.Size(43, 19)
         Me.TextBox2.TabIndex = 3
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(930, 2)
+        Me.Button1.Location = New System.Drawing.Point(960, 283)
         Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(67, 29)
+        Me.Button1.Size = New System.Drawing.Size(43, 29)
         Me.Button1.TabIndex = 4
-        Me.Button1.Text = "Button1"
+        Me.Button1.Text = "PLC"
         Me.Button1.UseVisualStyleBackColor = True
         '
         'frmMain
