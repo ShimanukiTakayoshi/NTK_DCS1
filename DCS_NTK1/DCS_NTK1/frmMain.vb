@@ -50,7 +50,7 @@
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-	Public DebugFlag As Boolean = True
+    Public DebugFlag As Boolean = False
 	Public tmp0 As Long = 0
     Public TmpLong(20) As Long
     Public TmpInt(299) As Long
@@ -193,108 +193,108 @@
 		End If
 	End Sub
 
-	Public Sub GetPlcData()
-		If Not DebugFlag Then
-			PlcReadingFlag = True
-			PlcReadWord(12000, 240)
-			PlcReadingFlag = False
-			'設備ﾃﾞｰﾀ読込
-			ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
-			LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
-			OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
-			For i As Short = 0 To 7
-				ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 13)) & Hex(TmpInt(i * 2 + 12))))
-			Next i
-			'品質ﾃﾞｰﾀ読込
-			SayaNo = CInt(TmpInt(100))
-			For i As Short = 0 To 3
-				SayaPosi(i) = CInt(TmpInt(101 + i))
-			Next
-			IndexNo = CInt(TmpInt(105))
-			For i As Short = 0 To 3
-				JudgeLead(i) = CInt(TmpInt(106 + i))
-			Next
-			For i As Short = 0 To 3
-				JudgeDet(i) = CInt(TmpInt(110 + i))
-			Next
-			For i As Short = 0 To 3
-				JudgeLen1(i) = CInt(TmpInt(114 + i))
-			Next
-			For i As Short = 0 To 3
-				JudgeLen2(i) = CInt(TmpInt(118 + i))
-			Next
-			For i As Short = 0 To 3
-				RetryDet(i) = CInt(TmpInt(122 + i))
-			Next
-			For i As Short = 0 To 3
-				RetryLen1(i) = CInt(TmpInt(126 + i))
-			Next
-			For i As Short = 0 To 3
-				RetryLen2(i) = CInt(TmpInt(130 + i))
-			Next
-			For i As Short = 0 To 3
-				Zaika(i) = CInt(TmpInt(134 + i))
-			Next
-			For i As Short = 0 To 3
-				ReDet(i) = HexAsc(Hex(TmpInt(140 + i * 2))) & HexAsc(Hex(TmpInt(141 + i * 2)))
-			Next
-			For i As Short = 0 To 3
-				ReLen1(i) = HexAsc(Hex(TmpInt(148 + i * 2))) & HexAsc(Hex(TmpInt(149 + i * 2)))
-			Next
-			For i As Short = 0 To 3
-				ReLen2(i) = HexAsc(Hex(TmpInt(156 + i * 2))) & HexAsc(Hex(TmpInt(157 + i * 2)))
-			Next
-			For i As Short = 0 To 23
-				ReShift(i) = HexAsc(Hex(TmpInt(170 + i * 2))) & HexAsc(Hex(TmpInt(171 + i * 2)))
-			Next
-		Else
-			ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
-			LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 1000)))
-			OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 1000)))
-			For i As Short = 0 To 7
-				ProbeData(i) = CLng((Int(Rnd(1) * 100000)))
-			Next i
-			'品質ﾃﾞｰﾀ読込
-			SayaNo = CInt(Int(Rnd(1) * 6) + 1)
-			For i As Short = 0 To 3
-				SayaPosi(i) = CInt(Int(Rnd(1) * 200) + 1)
-			Next
-			IndexNo = CInt(Int(Rnd(1) * 8) + 1)
-			For i As Short = 0 To 3
-				JudgeLead(i) = CInt(Int(Rnd(1) * 3))
-			Next
-			For i As Short = 0 To 3
-				JudgeDet(i) = CInt(Int(Rnd(1) * 3))
-			Next
-			For i As Short = 0 To 3
-				JudgeLen1(i) = CInt(Int(Rnd(1) * 3))
-			Next
-			For i As Short = 0 To 3
-				JudgeLen2(i) = CInt(Int(Rnd(1) * 3))
-			Next
-			For i As Short = 0 To 3
-				RetryDet(i) = CInt(Int(Rnd(1) * 2))
-			Next
-			For i As Short = 0 To 3
-				RetryLen1(i) = CInt(Int(Rnd(1) * 2))
-			Next
-			For i As Short = 0 To 3
-				RetryLen2(i) = CInt(Int(Rnd(1) * 2))
-			Next
-			For i As Short = 0 To 3
-				Zaika(i) = CInt(Int(Rnd(1) * 2))
-			Next
-			For i As Short = 0 To 3
-				ReDet(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-			Next
-			For i As Short = 0 To 3
-				ReLen1(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-			Next
-			For i As Short = 0 To 3
-				ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
-			Next
-		End If
-	End Sub
+    Public Sub GetPlcData()
+        If Not DebugFlag Then
+            PlcReadingFlag = True
+            PlcReadWord(12000, 240)
+            PlcReadingFlag = False
+            '設備ﾃﾞｰﾀ読込
+            ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
+            LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
+            OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
+            For i As Short = 0 To 7
+                ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 13)) & Hex(TmpInt(i * 2 + 12))))
+            Next i
+            '品質ﾃﾞｰﾀ読込
+            SayaNo = CInt(TmpInt(100))
+            For i As Short = 0 To 3
+                SayaPosi(i) = CInt(TmpInt(101 + i))
+            Next
+            IndexNo = CInt(TmpInt(105))
+            For i As Short = 0 To 3
+                JudgeLead(i) = CInt(TmpInt(106 + i))
+            Next
+            For i As Short = 0 To 3
+                JudgeDet(i) = CInt(TmpInt(110 + i))
+            Next
+            For i As Short = 0 To 3
+                JudgeLen1(i) = CInt(TmpInt(114 + i))
+            Next
+            For i As Short = 0 To 3
+                JudgeLen2(i) = CInt(TmpInt(118 + i))
+            Next
+            For i As Short = 0 To 3
+                RetryDet(i) = CInt(TmpInt(122 + i))
+            Next
+            For i As Short = 0 To 3
+                RetryLen1(i) = CInt(TmpInt(126 + i))
+            Next
+            For i As Short = 0 To 3
+                RetryLen2(i) = CInt(TmpInt(130 + i))
+            Next
+            For i As Short = 0 To 3
+                Zaika(i) = CInt(TmpInt(134 + i))
+            Next
+            For i As Short = 0 To 3
+                ReDet(i) = CStr(DBcdLong(TmpInt(140 + i * 2), TmpInt(141 + i * 2)))
+            Next
+            For i As Short = 0 To 3
+                ReLen1(i) = CStr(DBcdLong(TmpInt(148 + i * 2), TmpInt(149 + i * 2)))
+            Next
+            For i As Short = 0 To 3
+                ReLen2(i) = CStr(DBcdLong(TmpInt(156 + i * 2), TmpInt(157 + i * 2)))
+            Next
+            For i As Short = 0 To 23
+                ReShift(i) = CStr(DBcdLong(TmpInt(170 + i * 2), TmpInt(171 + i * 2)))
+            Next
+        Else
+            ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
+            LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 1000)))
+            OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 1000)))
+            For i As Short = 0 To 7
+                ProbeData(i) = CLng((Int(Rnd(1) * 100000)))
+            Next i
+            '品質ﾃﾞｰﾀ読込
+            SayaNo = CInt(Int(Rnd(1) * 6) + 1)
+            For i As Short = 0 To 3
+                SayaPosi(i) = CInt(Int(Rnd(1) * 200) + 1)
+            Next
+            IndexNo = CInt(Int(Rnd(1) * 8) + 1)
+            For i As Short = 0 To 3
+                JudgeLead(i) = CInt(Int(Rnd(1) * 3))
+            Next
+            For i As Short = 0 To 3
+                JudgeDet(i) = CInt(Int(Rnd(1) * 3))
+            Next
+            For i As Short = 0 To 3
+                JudgeLen1(i) = CInt(Int(Rnd(1) * 3))
+            Next
+            For i As Short = 0 To 3
+                JudgeLen2(i) = CInt(Int(Rnd(1) * 3))
+            Next
+            For i As Short = 0 To 3
+                RetryDet(i) = CInt(Int(Rnd(1) * 2))
+            Next
+            For i As Short = 0 To 3
+                RetryLen1(i) = CInt(Int(Rnd(1) * 2))
+            Next
+            For i As Short = 0 To 3
+                RetryLen2(i) = CInt(Int(Rnd(1) * 2))
+            Next
+            For i As Short = 0 To 3
+                Zaika(i) = CInt(Int(Rnd(1) * 2))
+            Next
+            For i As Short = 0 To 3
+                ReDet(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+            Next
+            For i As Short = 0 To 3
+                ReLen1(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+            Next
+            For i As Short = 0 To 3
+                ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
+            Next
+        End If
+    End Sub
 
 	Public Sub ChFormat()
 		'さやNoアルファベット変換
@@ -355,7 +355,7 @@
 				Case Else
 					QuData(i, 4) = "--"
 			End Select
-			QuData(i, 5) = ReDet(i)
+            QuData(i, 5) = ChangeData(ReDet(i))
 			Select Case JudgeDet(i)
 				Case 0
 					QuData(i, 6) = "NG"
@@ -370,7 +370,7 @@
 				Case Else
 					QuData(i, 7) = " "
 			End Select
-			QuData(i, 8) = ReLen(i)
+            QuData(i, 8) = ChangeData(ReLen(i))
 			Select Case JudgeLen(i)
 				Case 0
 					QuData(i, 9) = "NG"
@@ -379,12 +379,12 @@
 				Case Else
 					QuData(i, 9) = "--"
 			End Select
-			Select Case RetryLen(i)
-				Case 1
-					QuData(i, 10) = "R"
-				Case Else
-					QuData(i, 10) = " "
-			End Select
+            Select Case RetryLen(i)
+                Case 1
+                    QuData(i, 10) = "R"
+                Case Else
+                    QuData(i, 10) = " "
+            End Select
 			QuData(i, 11) = CType(i + 1, String)
 			QuData(i, 12) = CType(IndexNo, String)
 		Next i
@@ -574,6 +574,57 @@
         End If
     End Function
 
+    Public Function Hex4(x As String) As String
+        Dim a0 As Integer = Len(Trim(x))
+        If a0 < 4 Then
+            Hex4 = Strings.Left("0000", 4 - a0) + Trim(x)
+        Else
+            Hex4 = Strings.Left(Trim(x), 4)
+        End If
+    End Function
+
+    Public Function DBcdLong(bl As Long, bh As Long) As Long
+        Dim s1 As String = Hex4(Trim(Hex(bh)))
+        Dim s2 As String = Hex4(Trim(Hex(bl)))
+        Dim s3 As String = s1 + s2
+        DBcdLong = CLng(Val(s3))
+    End Function
+
+    Public Function ChangeData(s0 As String) As String
+        Dim a0 As Double = 0
+        Dim s1 As String = ""
+        Dim a1 As Integer = 0
+        Dim a2 As Integer = 0
+        If IsNumeric(s0) Then
+            a0 = Val(s0) / 1000
+            s1 = Trim(Str(a0))
+            a1 = Len(s1)
+            If Strings.Left(s1, 1) = "." Then
+                If a1 > 4 Then s1 = Strings.Left(s1, 4)
+                If a1 < 4 Then s1 = s1 & (Strings.Left("0000", 4 - a1))
+                s1 = "0" + s1
+            Else
+                a2 = InStr(s1, ".")
+                If a2 = 0 Then
+                    s1 = s1 + ".000"
+                Else
+                    Select Case a1 - a2
+                        Case 1
+                            s1 = s1 + "00"
+                        Case 2
+                            s1 = s1 + "0"
+                        Case Else
+                            s1 = s1
+                    End Select
+                End If
+            End If
+        End If
+        ChangeData = s1
+    End Function
+
+
+
+
     Public Sub DGVClear(ByVal dgv As DataGridView)
         With dgv
             '列数が>0なら表示されていると判断し、一旦消去(表示速度には影響なし)
@@ -691,6 +742,10 @@
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         frmDebug.Show()
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        TextBox3.Text = ChangeData(TextBox4.Text)
     End Sub
 End Class
 
