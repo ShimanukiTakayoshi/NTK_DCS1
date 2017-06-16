@@ -51,6 +51,7 @@
     Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
     Public DebugFlag As Boolean = False
+    Public SayaPosiDebugFlag As Boolean = True
 	Public tmp0 As Long = 0
     Public TmpLong(20) As Long
     Public TmpInt(299) As Long
@@ -64,7 +65,12 @@
         DGVClear(dgvEq)
         Me.Width = 1024
         Me.Height = 768
-        Me.FormBorderStyle = FormBorderStyle.FixedSingle
+        'Me.FormBorderStyle = FormBorderStyle.FixedSingle
+        'Me.Width = Screen.GetBounds(Me).Width
+        'Me.Height = Screen.GetBounds(Me).Height
+        Me.Left = 0
+        Me.Top = 0
+        Me.StartPosition = FormStartPosition.Manual
         dgvEq.Width = 990
         dgvEq.Height = 263
         Dim cstyle1 As New DataGridViewCellStyle
@@ -185,12 +191,16 @@
 		If PlcRead(QuTriggerAdress) <> 0 Then
 			PlcWrite(QuTriggerAdress, 0)
 			QuStackCounter += 1
-			GetPlcData()
-			ChFormat()
-			QuStackSet()
-			DrawChartQu()
-			SaveDataQu()
-		End If
+            GetPlcData()
+            If (SayaNo >= 1 And SayaNo <= 12) And (SayaPosi(0) > 0 And SayaPosi(1) > 0 And SayaPosi(2) > 0 And SayaPosi(3) > 0) Then
+                ChFormat()
+                QuStackSet()
+                DrawChartQu()
+                SaveDataQu()
+            Else
+                QuStackCounter -= 1
+            End If
+        End If
 	End Sub
 
     Public Sub GetPlcData()
@@ -207,9 +217,15 @@
             Next i
             '品質ﾃﾞｰﾀ読込
             SayaNo = CInt(TmpInt(100))
-            For i As Short = 0 To 3
-                SayaPosi(i) = CInt(TmpInt(101 + i))
-            Next
+            If Not SayaPosiDebugFlag Then
+                For i As Short = 0 To 3
+                    SayaPosi(i) = CInt(TmpInt(101 + i))
+                Next
+            Else
+                For i As Short = 0 To 3
+                    SayaPosi(i) = CInt(TmpInt(220 + i))
+                Next
+            End If
             IndexNo = CInt(TmpInt(105))
             For i As Short = 0 To 3
                 JudgeLead(i) = CInt(TmpInt(106 + i))

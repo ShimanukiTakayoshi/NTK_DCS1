@@ -104,6 +104,7 @@ Partial Class frmMain
         Me.Button2.TabIndex = 5
         Me.Button2.Text = "Button2"
         Me.Button2.UseVisualStyleBackColor = True
+        Me.Button2.Visible = False
         '
         'TextBox3
         '
@@ -111,6 +112,7 @@ Partial Class frmMain
         Me.TextBox3.Name = "TextBox3"
         Me.TextBox3.Size = New System.Drawing.Size(76, 19)
         Me.TextBox3.TabIndex = 6
+        Me.TextBox3.Visible = False
         '
         'TextBox4
         '
@@ -118,6 +120,7 @@ Partial Class frmMain
         Me.TextBox4.Name = "TextBox4"
         Me.TextBox4.Size = New System.Drawing.Size(76, 19)
         Me.TextBox4.TabIndex = 7
+        Me.TextBox4.Visible = False
         '
         'frmMain
         '
@@ -133,7 +136,7 @@ Partial Class frmMain
         Me.Controls.Add(Me.dgvEq)
         Me.Controls.Add(Me.TextBox1)
         Me.Name = "frmMain"
-        Me.Text = "DCS_NTK"
+        Me.Text = "抵抗測定機データ収集"
         CType(Me.dgvEq, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvQu, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
