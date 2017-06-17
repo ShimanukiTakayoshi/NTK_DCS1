@@ -638,9 +638,6 @@
         ChangeData = s1
     End Function
 
-
-
-
     Public Sub DGVClear(ByVal dgv As DataGridView)
         With dgv
             '列数が>0なら表示されていると判断し、一旦消去(表示速度には影響なし)

@@ -66,18 +66,7 @@
             TextBox59.Text = CStr(frmMain.ReShift(21))
             TextBox60.Text = CStr(frmMain.ReShift(22))
             TextBox61.Text = CStr(frmMain.ReShift(23))
-
-            'For i As Short = 0 To 3
-            '    ReDet(i) = HexAsc(Hex(TmpInt(140 + i * 2))) & HexAsc(Hex(TmpInt(141 + i * 2)))
-            'Next
-            'For i As Short = 0 To 3
-            '    ReLen1(i) = HexAsc(Hex(TmpInt(148 + i * 2))) & HexAsc(Hex(TmpInt(149 + i * 2)))
-            'Next
-            'For i As Short = 0 To 3
-            '    ReLen2(i) = HexAsc(Hex(TmpInt(156 + i * 2))) & HexAsc(Hex(TmpInt(157 + i * 2)))
-            'Next
         End If
     End Sub
 
- 
 End Class
