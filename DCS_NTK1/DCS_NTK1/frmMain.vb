@@ -52,7 +52,7 @@
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = True
+    Public DebugFlag As Boolean = False
     Public SayaPosiDebugFlag As Boolean = True
 	Public tmp0 As Long = 0
     Public TmpLong(20) As Long
@@ -168,14 +168,18 @@
 				EqStartedFlag = True
 				StartTime = Trim(CStr(Now))
 				StackCounter += 1
-				GetPlcData()
+                GetPlcData()
+                'ElementNo = "Element123"
+                'LotNo = "Lot123"
 				EndTime = ""
 				For i As Integer = 0 To 7
 					ProbeData(i) = 0
 				Next
 				StackSet()
-				DrawChartSetubi()
-			End If
+                DrawChartSetubi()
+                MakeElementFolder()
+                MakeLotFile()
+            End If
 		End If
 		'エンドトリガ監視
 		If PlcRead(EndTriggerAdress) <> 0 Then
@@ -312,6 +316,8 @@
                 ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
             Next
         End If
+        'ElementNo = "Ele123"
+        'LotNo = "Lot123"
     End Sub
 
 	Public Sub ChFormat()
@@ -493,6 +499,7 @@
                 PlcRead = SysmacCJ.DM(address)
             Catch ex As Exception
                 If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
+                    timScan.Enabled = False
                     Application.Exit()
                 End If
                 Application.Exit()
@@ -688,6 +695,23 @@
 
     '各ファイル保存
 
+    Public Sub MakeElementFolder()
+        If ElementNo <> "" Then
+            Dim di As System.IO.DirectoryInfo = New System.IO.DirectoryInfo(SaveFolder + "\" + ElementNo)
+            di.Create()
+        End If
+    End Sub
+
+    Public Sub MakeLotFile()
+        '保存ファイル生成
+        SaveFileNameQu = LotNo
+        Dim Title As String = ""
+        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", Title, True)
+        SaveDataFirstFlagQu = False
+    End Sub
+
     Public Sub CreateSaveFolder()
         '保存先フォルダ生成
         Dim dt As DateTime = DateTime.Now
@@ -747,17 +771,9 @@
     Public Sub SaveDataQu()
         '起動初回確認
         If SaveDataFirstFlagQu Then
-            CreateSaveFolder()
-            CreateSaveFileNameQu()
+            MakeElementFolder()
+            MakeLotFile()
             SaveDataFirstFlagQu = False
-        End If
-        '現在時刻確認
-        Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
-        Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
-        Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
-        If NowDate <> SaveFileNameQu And Val(NowTime) >= Val(SaveTimeH + SaveTimeM) Then
-            If NowYearMonth <> SaveSubFolder Then CreateSaveFolder()
-            CreateSaveFileNameQu()
         End If
         'データ保存
         Dim InputString As String = ""
@@ -767,10 +783,38 @@
                 InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
             Next
             InputString = InputString & vbCrLf
-            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", InputString, True)
-            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", InputString, True)
+            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", InputString, True)
+            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", InputString, True)
         Next
     End Sub
+
+    'Public Sub SaveDataQu()
+    '    '起動初回確認
+    '    If SaveDataFirstFlagQu Then
+    '        CreateSaveFolder()
+    '        CreateSaveFileNameQu()
+    '        SaveDataFirstFlagQu = False
+    '    End If
+    '    '現在時刻確認
+    '    Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
+    '    Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
+    '    Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
+    '    If NowDate <> SaveFileNameQu And Val(NowTime) >= Val(SaveTimeH + SaveTimeM) Then
+    '        If NowYearMonth <> SaveSubFolder Then CreateSaveFolder()
+    '        CreateSaveFileNameQu()
+    '    End If
+    '    'データ保存
+    '    Dim InputString As String = ""
+    '    For i As Integer = 0 To 3
+    '        InputString = ""
+    '        For j As Integer = 0 To 12
+    '            InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
+    '        Next
+    '        InputString = InputString & vbCrLf
+    '        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", InputString, True)
+    '        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", InputString, True)
+    '    Next
+    'End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         frmDebug.Show()

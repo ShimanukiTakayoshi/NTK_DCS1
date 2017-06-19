@@ -53,7 +53,7 @@ Partial Class frmMain
         'timScan
         '
         Me.timScan.Enabled = True
-        Me.timScan.Interval = 1000
+        Me.timScan.Interval = 250
         '
         'TextBox1
         '

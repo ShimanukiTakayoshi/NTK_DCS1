@@ -27,6 +27,7 @@ C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe
 C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.xml
 C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.pdb
 C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.vbprojResolveAssemblyReference.cache
+C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.frmDebug.resources
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.exe.config
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.exe
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\bin\Debug\DCS_NTK1.pdb
@@ -39,5 +40,3 @@ C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.xml
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.pdb
-C:\Users\Shima\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.frmDebug.resources
-C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.vbprojResolveAssemblyReference.cache
