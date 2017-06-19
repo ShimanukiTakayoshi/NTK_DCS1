@@ -36,6 +36,8 @@
     Public ReLen2(4) As String
     Public ReShift(24) As String
     Public FormatData(100) As String
+    Public EqChartRow As Integer = 8
+    Public QuChartRow As Integer = 4
 
 	Public QuData(4, 70) As String             '品質ﾃﾞｰﾀ
 
@@ -50,7 +52,7 @@
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = False
+    Public DebugFlag As Boolean = True
     Public SayaPosiDebugFlag As Boolean = True
 	Public tmp0 As Long = 0
     Public TmpLong(20) As Long
@@ -72,7 +74,7 @@
         Me.Top = 0
         Me.StartPosition = FormStartPosition.Manual
         dgvEq.Width = 990
-        dgvEq.Height = 263
+        dgvEq.Height = 263 - 21 * 2
         Dim cstyle1 As New DataGridViewCellStyle
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
         Dim columnHeaderStyle As DataGridViewCellStyle = dgvEq.ColumnHeadersDefaultCellStyle
@@ -102,7 +104,7 @@
         dgvEq.Columns(2).Width = 65
         dgvEq.Columns(3).Width = 110
         dgvEq.Columns(4).Width = 110
-        For i As Integer = 0 To 99
+        For i As Integer = 0 To 8
             dgvEq.Rows.Add("")
         Next
         dgvEq.RowHeadersVisible = False
@@ -112,7 +114,7 @@
         DGVClear(dgvQu)
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
         dgvQu.Width = 945
-        dgvQu.Height = 410
+        dgvQu.Height = 410 + 21 * 2
         Dim cstyle2 As New DataGridViewCellStyle
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
         Dim columnHeaderStyle2 As DataGridViewCellStyle = dgvQu.ColumnHeadersDefaultCellStyle
@@ -135,9 +137,9 @@
             dgvQu.Columns(i).DefaultCellStyle = cstyle1
             dgvQu.Columns(i).Width = 62
         Next i
-		For i As Integer = 0 To 500
-			dgvQu.Rows.Add("")
-		Next
+        For i As Integer = 0 To 19
+            dgvQu.Rows.Add("")
+        Next
         dgvQu.Columns(0).Width = 110
         dgvQu.Columns(1).Width = 70
         dgvQu.Columns(2).Width = 70
@@ -147,7 +149,7 @@
         dgvQu.RowHeadersVisible = False
         dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvQu.CurrentCell = Nothing         '選択されているセルをなくす
-
+        dgvQu.FirstDisplayedScrollingRowIndex = 0
     End Sub
 
     Private Sub timScan_Tick(sender As Object, e As EventArgs) Handles timScan.Tick
@@ -444,15 +446,29 @@
 		End If
 	End Sub
 
-	Public Sub DrawChartSetubi()
-		For i As Integer = 0 To StackCounter
-			For j As Integer = 0 To 12
-				dgvEq.Item(j, i).Value = StackData(j, i + 1)
-			Next
-		Next
-	End Sub
+    Public Sub DrawChartSetubi()
+        If StackCounter >= EqChartRow + 1 Then
+            dgvEq.Rows.Add("")
+            EqChartRow = StackCounter
+        End If
+        For i As Integer = 0 To StackCounter
+            For j As Integer = 0 To 12
+                dgvEq.Item(j, i).Value = StackData(j, i + 1)
+            Next
+        Next
+        If dgvEq.RowCount > 11 Then
+            dgvEq.FirstDisplayedScrollingRowIndex = (StackCounter - 9) * 1 + 0
+        End If
+    End Sub
 
 	Public Sub DrawChartQu()
+        If QuStackCounter >= QuChartRow + 1 Then
+            dgvQu.Rows.Add("")
+            dgvQu.Rows.Add("")
+            dgvQu.Rows.Add("")
+            dgvQu.Rows.Add("")
+            QuChartRow = QuStackCounter
+        End If
         For i As Integer = 0 To QuStackCounter
             For j As Integer = 0 To 12
                 dgvQu.Item(j, i * 4 + 0).Value = QuStackData((i + 1) * 4 + 0, j)
@@ -461,7 +477,10 @@
                 dgvQu.Item(j, i * 4 + 3).Value = QuStackData((i + 1) * 4 + 3, j)
             Next
         Next
-	End Sub
+        If dgvQu.RowCount > 28 Then
+            dgvQu.FirstDisplayedScrollingRowIndex = (QuStackCounter - 5) * 4 + 0
+        End If
+    End Sub
 
 	'PLC通信
 

@@ -53,7 +53,7 @@ Partial Class frmMain
         'timScan
         '
         Me.timScan.Enabled = True
-        Me.timScan.Interval = 250
+        Me.timScan.Interval = 1000
         '
         'TextBox1
         '
@@ -74,7 +74,7 @@ Partial Class frmMain
         'dgvQu
         '
         Me.dgvQu.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvQu.Location = New System.Drawing.Point(12, 283)
+        Me.dgvQu.Location = New System.Drawing.Point(12, 238)
         Me.dgvQu.Name = "dgvQu"
         Me.dgvQu.RowTemplate.Height = 21
         Me.dgvQu.Size = New System.Drawing.Size(240, 150)
