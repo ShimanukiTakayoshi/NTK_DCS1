@@ -5,8 +5,8 @@
     Public SaveFileName As String = ""     'CSVファイル名
     Public SaveFileNameQu As String = ""     'CSVファイル名
     Public Gouki As Integer = 1            '号機番号
-    Public SaveTimeH As String = "7"       'データ保存ファイル切替時間(H)
-    Public SaveTimeM As String = "26"      'データ保存ファイル切替時間(M)
+    Public SaveTimeH As String = "0"       'データ保存ファイル切替時間(H)
+    Public SaveTimeM As String = "1"      'データ保存ファイル切替時間(M)
 	'PLC通信アドレス設定
 	Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
 	Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
@@ -527,7 +527,6 @@
         TimeValue = x.Second
         TimeValue += (x.Minute) * 60
         TimeValue += (x.Hour) * 60 * 60
-
     End Function
 
     'PLC通信
