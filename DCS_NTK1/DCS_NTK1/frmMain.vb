@@ -17,9 +17,13 @@
     Public OperatorNo As String = ""        '作業者
     Public StartTime As String = ""         '仕掛時間
     Public EndTime As String = ""           '完了時間
-    Public ProbeData(9） As Long            '各ﾌﾟﾛｰﾌﾞ使用回数
+    Public ProcessTime As String = ""       '処理時間
+    Public ProbeData(9) As Long            '各ﾌﾟﾛｰﾌﾞ使用回数
+    Public StartTimeValue As Long = 0
+    Public EndTimeValue As Long = 0
+    Public dtNow As DateTime
 
-	Public SayaNo As Integer = 0
+    Public SayaNo As Integer = 0
 	Public SayaPosi(4) As Integer
 	Public IndexNo As Integer = 0
 	Public JudgeLead(4) As Integer
@@ -29,7 +33,7 @@
 	Public RetryLead(4) As Integer
 	Public RetryDet(4) As Integer
 	Public RetryLen1(4) As Integer
-	Public RetryLen2(4) As Integer
+    Public RetryLen2(4) As Integer
 	Public Zaika(4) As Integer
 	Public ReDet(4) As String
 	Public ReLen1(4) As String
@@ -52,7 +56,7 @@
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = True
+    Public DebugFlag As Boolean = False
     Public SayaPosiDebugFlag As Boolean = True
 	Public tmp0 As Long = 0
     Public TmpLong(20) As Long
@@ -101,21 +105,22 @@
         dgvEq.Columns.Add("2", "ｵﾍﾟﾚｰﾀ")
         dgvEq.Columns.Add("3", "仕掛時間")
         dgvEq.Columns.Add("4", "完了時間")
-        dgvEq.Columns.Add("5", "検知上")
-        dgvEq.Columns.Add("6", "検知横")
-        dgvEq.Columns.Add("7", "検知下")
-        dgvEq.Columns.Add("8", "全長①上")
-        dgvEq.Columns.Add("9", "全長①下")
-        dgvEq.Columns.Add("10", "全長②上")
-        dgvEq.Columns.Add("11", "全長②横")
-        dgvEq.Columns.Add("12", "全長②斜")
+        dgvEq.Columns.Add("5", "処理時間")
+        dgvEq.Columns.Add("6", "検知上")
+        dgvEq.Columns.Add("7", "検知横")
+        dgvEq.Columns.Add("8", "検知下")
+        dgvEq.Columns.Add("9", "全長①上")
+        dgvEq.Columns.Add("10", "全長①下")
+        dgvEq.Columns.Add("11", "全長②上")
+        dgvEq.Columns.Add("12", "全長②横")
+        dgvEq.Columns.Add("13", "全長②斜")
 		For i As Integer = 0 To 4
 			dgvEq.Columns(i).DefaultCellStyle = cstyle1
-			dgvEq.Columns(i).Width = 62
+            dgvEq.Columns(i).Width = 59
 		Next i
-		For i As Integer = 5 To 12
+        For i As Integer = 5 To 13
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
-            dgvEq.Columns(i).Width = 70
+            dgvEq.Columns(i).Width = 63
         Next i
         dgvEq.Columns(2).Width = 65
         dgvEq.Columns(3).Width = 110
@@ -181,13 +186,16 @@
 		If PlcRead(StartTriggerAdress) <> 0 Then
 			PlcWrite(StartTriggerAdress, 0)
 			If Not EqStartedFlag Then
-				EqStartedFlag = True
-				StartTime = Trim(CStr(Now))
-				StackCounter += 1
+                EqStartedFlag = True
+                StartTime = Trim(CStr(Now))
+                dtNow = DateTime.Now
+                StartTimeValue = TimeValue(dtNow)
+                StackCounter += 1
                 GetPlcData()
                 'ElementNo = "Element123"
                 'LotNo = "Lot123"
-				EndTime = ""
+                EndTime = ""
+                ProcessTime = ""
 				For i As Integer = 0 To 7
 					ProbeData(i) = 0
 				Next
@@ -202,7 +210,15 @@
 			PlcWrite(EndTriggerAdress, 0)
 			If EqStartedFlag Then
 				EndTime = Trim(CStr(Now))
-				GetPlcData()
+                dtNow = DateTime.Now
+                EndTimeValue = TimeValue(dtNow)
+                If StartTimeValue > EndTimeValue Then EndTimeValue += 3600
+                Dim a0 As Long = EndTimeValue - StartTimeValue
+                Dim s0 As String = Trim(Str(Int(a0 / 60)))
+                Dim s1 As String = Trim(Str(a0 Mod 60))
+                If Len(s1) = 1 Then s1 = "0" + s1
+                ProcessTime = s0 & ":" & s1
+                GetPlcData()
 				StackSet()
 				DrawChartSetubi()
 				SaveData()
@@ -286,11 +302,11 @@
                 ReShift(i) = CStr(DBcdLong(TmpInt(170 + i * 2), TmpInt(171 + i * 2)))
             Next
         Else
-            ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 1000)))
-            LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 1000)))
-            OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 1000)))
+            ElementNo = "Ele" & Trim(CStr(Int(Rnd(1) * 99999)))
+            LotNo = "Lot" & Trim(CStr(Int(Rnd(1) * 99999)))
+            OperatorNo = "Ope" & Trim(CStr(Int(Rnd(1) * 99999)))
             For i As Short = 0 To 7
-                ProbeData(i) = CLng((Int(Rnd(1) * 100000)))
+                ProbeData(i) = CLng((Int(Rnd(1) * 9999999)))
             Next i
             '品質ﾃﾞｰﾀ読込
             SayaNo = CInt(Int(Rnd(1) * 6) + 1)
@@ -333,8 +349,8 @@
             Next
         End If
         If DebugFlag Then
-            ElementNo = "Ele123y"
-            LotNo = "Lot123"
+            ElementNo = "Ele123y8"
+            LotNo = "Lot12399"
         End If
     End Sub
 
@@ -438,14 +454,15 @@
 		StackData(2, StackCounter) = OperatorNo
 		StackData(3, StackCounter) = StartTime
 		StackData(4, StackCounter) = EndTime
-		For i As Integer = 5 To 12
-			StackData(i, StackCounter) = CStr(ProbeData(i - 5))
-		Next
+        StackData(5, StackCounter) = ProcessTime
+        For i As Integer = 6 To 13
+            StackData(i, StackCounter) = CStr(ProbeData(i - 6))
+        Next
 		If StackCounter > 100 Then
 			For i As Integer = 1 To 100
-				For j As Integer = 0 To 12
-					StackData(j, i) = StackData(j, i + 1)
-				Next
+                For j As Integer = 0 To 13
+                    StackData(j, i) = StackData(j, i + 1)
+                Next
 			Next
 			StackCounter = 100
 		End If
@@ -476,7 +493,7 @@
             EqChartRow = StackCounter
         End If
         For i As Integer = 0 To StackCounter
-            For j As Integer = 0 To 12
+            For j As Integer = 0 To 13
                 dgvEq.Item(j, i).Value = StackData(j, i + 1)
             Next
         Next
@@ -506,9 +523,16 @@
         End If
     End Sub
 
-	'PLC通信
+    Public Function TimeValue(x As DateTime) As Long
+        TimeValue = x.Second
+        TimeValue += (x.Minute) * 60
+        TimeValue += (x.Hour) * 60 * 60
 
-	Public Function PlcRead(address As Long) As Long
+    End Function
+
+    'PLC通信
+
+    Public Function PlcRead(address As Long) As Long
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
         'シーケンサーのDMメモリーより「address」にて指定したアドレスの内容を読み込む
         '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
