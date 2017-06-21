@@ -6,7 +6,15 @@ DCS_NTK1
 </name>
 </assembly>
 <members>
-<member name="P:DCS_NTK1.My.Resources.Resources.ResourceManager">
+<member name="M:DCS_NTK1.frmMain.PrevInstance">
+ ---------------------------------------------------------------------------
+ <summary>
+    同名のプロセスが起動しているかどうかを示す値を返します。</summary>
+	<returns>
+    同名のプロセスが起動中の場合は True。それ以外は False。</returns>
+ ---------------------------------------------------------------------------
+
+</member><member name="P:DCS_NTK1.My.Resources.Resources.ResourceManager">
 	<summary>
   Returns the cached ResourceManager instance used by this class.
 </summary>

@@ -52,13 +52,29 @@
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = False
+    Public DebugFlag As Boolean = True
     Public SayaPosiDebugFlag As Boolean = True
 	Public tmp0 As Long = 0
     Public TmpLong(20) As Long
     Public TmpInt(299) As Long
 
+    Protected Shared Sub Start()
+        ' 同名のプロセスが起動していない時は起動する
+        If PrevInstance() = True Then
+            'Application.Run(New frmMain())
+            Application.Exit()
+            ' 既に起動中である旨を表示 (推奨しません)
+            'Else
+            '    MessageBox.Show("既に起動しています")
+        End If
+    End Sub
+
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        '二重起動防止
+        If PrevInstance() Then
+            Application.Exit()
+        End If
+        '初期設定
         initialize()
     End Sub
 
@@ -178,7 +194,7 @@
 				StackSet()
                 DrawChartSetubi()
                 MakeElementFolder()
-                MakeLotFile()
+                'MakeLotFile()
             End If
 		End If
 		'エンドトリガ監視
@@ -316,8 +332,10 @@
                 ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
             Next
         End If
-        'ElementNo = "Ele123"
-        'LotNo = "Lot123"
+        If DebugFlag Then
+            ElementNo = "Ele123y"
+            LotNo = "Lot123"
+        End If
     End Sub
 
 	Public Sub ChFormat()
@@ -693,12 +711,33 @@
         dgvEq.CurrentCell = Nothing         '選択されているセルをなくす
     End Sub
 
+    ''' ---------------------------------------------------------------------------
+    ''' <summary>
+    '''    同名のプロセスが起動しているかどうかを示す値を返します。</summary>
+    ''' <returns>
+    '''    同名のプロセスが起動中の場合は True。それ以外は False。</returns>
+    ''' ---------------------------------------------------------------------------
+    Public Shared Function PrevInstance() As Boolean
+        ' このアプリケーションのプロセス名を取得
+        Dim stThisProcess As String = System.Diagnostics.Process.GetCurrentProcess().ProcessName
+
+        ' 同名のプロセスが他に存在する場合は、既に起動していると判断する
+        If System.Diagnostics.Process.GetProcessesByName(stThisProcess).Length > 1 Then
+            Return True
+        End If
+
+        ' 存在しない場合は False を返す
+        Return False
+    End Function
+
     '各ファイル保存
 
     Public Sub MakeElementFolder()
-        If ElementNo <> "" Then
+        If ElementNo <> "" And InStr(ElementNo, "?") = 0 Then
             Dim di As System.IO.DirectoryInfo = New System.IO.DirectoryInfo(SaveFolder + "\" + ElementNo)
             di.Create()
+        Else
+            '
         End If
     End Sub
 
@@ -707,8 +746,8 @@
         SaveFileNameQu = LotNo
         Dim Title As String = ""
         Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", Title, True)
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".CSV", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".BKF", Title, True)
         SaveDataFirstFlagQu = False
     End Sub
 
@@ -775,6 +814,16 @@
             MakeLotFile()
             SaveDataFirstFlagQu = False
         End If
+        '保存先フォルダ確認＆生成
+        Dim x1 As String = SaveFolder + "\" + ElementNo + "\"
+        If Not System.IO.Directory.Exists(x1) Then
+            MakeElementFolder()
+        End If
+        '保存ファイルの確認
+        Dim x2 As String = SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".CSV"
+        If Not System.IO.File.Exists(x2) Then
+            MakeLotFile()
+        End If
         'データ保存
         Dim InputString As String = ""
         For i As Integer = 0 To 3
@@ -783,8 +832,8 @@
                 InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
             Next
             InputString = InputString & vbCrLf
-            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", InputString, True)
-            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", InputString, True)
+            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".CSV", InputString, True)
+            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".BKF", InputString, True)
         Next
     End Sub
 
