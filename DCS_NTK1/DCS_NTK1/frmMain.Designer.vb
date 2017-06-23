@@ -25,7 +25,6 @@ Partial Class frmMain
         Me.components = New System.ComponentModel.Container()
         Me.SysmacCJ = New OMRON.Compolet.SYSMAC.SysmacCJ(Me.components)
         Me.timScan = New System.Windows.Forms.Timer(Me.components)
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.dgvEq = New System.Windows.Forms.DataGridView()
         Me.dgvQu = New System.Windows.Forms.DataGridView()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
@@ -58,13 +57,6 @@ Partial Class frmMain
         Me.timScan.Enabled = True
         Me.timScan.Interval = 1000
         '
-        'TextBox1
-        '
-        Me.TextBox1.Location = New System.Drawing.Point(12, 642)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(148, 19)
-        Me.TextBox1.TabIndex = 0
-        '
         'dgvEq
         '
         Me.dgvEq.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
@@ -85,23 +77,23 @@ Partial Class frmMain
         '
         'TextBox2
         '
-        Me.TextBox2.Location = New System.Drawing.Point(960, 318)
+        Me.TextBox2.Location = New System.Drawing.Point(52, 705)
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.Size = New System.Drawing.Size(43, 19)
         Me.TextBox2.TabIndex = 3
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(960, 283)
+        Me.Button1.Location = New System.Drawing.Point(3, 702)
         Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(43, 29)
+        Me.Button1.Size = New System.Drawing.Size(43, 22)
         Me.Button1.TabIndex = 4
         Me.Button1.Text = "PLC"
         Me.Button1.UseVisualStyleBackColor = True
         '
         'Button2
         '
-        Me.Button2.Location = New System.Drawing.Point(969, 354)
+        Me.Button2.Location = New System.Drawing.Point(101, 702)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(33, 24)
         Me.Button2.TabIndex = 5
@@ -111,7 +103,7 @@ Partial Class frmMain
         '
         'TextBox3
         '
-        Me.TextBox3.Location = New System.Drawing.Point(947, 426)
+        Me.TextBox3.Location = New System.Drawing.Point(222, 705)
         Me.TextBox3.Name = "TextBox3"
         Me.TextBox3.Size = New System.Drawing.Size(76, 19)
         Me.TextBox3.TabIndex = 6
@@ -119,7 +111,7 @@ Partial Class frmMain
         '
         'TextBox4
         '
-        Me.TextBox4.Location = New System.Drawing.Point(947, 384)
+        Me.TextBox4.Location = New System.Drawing.Point(140, 705)
         Me.TextBox4.Name = "TextBox4"
         Me.TextBox4.Size = New System.Drawing.Size(76, 19)
         Me.TextBox4.TabIndex = 7
@@ -127,7 +119,7 @@ Partial Class frmMain
         '
         'btnStart
         '
-        Me.btnStart.Location = New System.Drawing.Point(957, 455)
+        Me.btnStart.Location = New System.Drawing.Point(304, 706)
         Me.btnStart.Name = "btnStart"
         Me.btnStart.Size = New System.Drawing.Size(56, 18)
         Me.btnStart.TabIndex = 8
@@ -136,7 +128,7 @@ Partial Class frmMain
         '
         'btnEnd
         '
-        Me.btnEnd.Location = New System.Drawing.Point(957, 486)
+        Me.btnEnd.Location = New System.Drawing.Point(366, 706)
         Me.btnEnd.Name = "btnEnd"
         Me.btnEnd.Size = New System.Drawing.Size(55, 20)
         Me.btnEnd.TabIndex = 9
@@ -145,7 +137,7 @@ Partial Class frmMain
         '
         'btnData
         '
-        Me.btnData.Location = New System.Drawing.Point(957, 530)
+        Me.btnData.Location = New System.Drawing.Point(427, 706)
         Me.btnData.Name = "btnData"
         Me.btnData.Size = New System.Drawing.Size(55, 20)
         Me.btnData.TabIndex = 10
@@ -156,7 +148,7 @@ Partial Class frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1026, 673)
+        Me.ClientSize = New System.Drawing.Size(1008, 729)
         Me.Controls.Add(Me.btnData)
         Me.Controls.Add(Me.btnEnd)
         Me.Controls.Add(Me.btnStart)
@@ -167,7 +159,6 @@ Partial Class frmMain
         Me.Controls.Add(Me.TextBox2)
         Me.Controls.Add(Me.dgvQu)
         Me.Controls.Add(Me.dgvEq)
-        Me.Controls.Add(Me.TextBox1)
         Me.Name = "frmMain"
         Me.Text = "抵抗測定機データ収集"
         CType(Me.dgvEq, System.ComponentModel.ISupportInitialize).EndInit()
@@ -178,7 +169,6 @@ Partial Class frmMain
     End Sub
     Friend WithEvents SysmacCJ As OMRON.Compolet.SYSMAC.SysmacCJ
     Friend WithEvents timScan As System.Windows.Forms.Timer
-    Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents dgvEq As DataGridView
     Friend WithEvents dgvQu As DataGridView
     Friend WithEvents TextBox2 As System.Windows.Forms.TextBox

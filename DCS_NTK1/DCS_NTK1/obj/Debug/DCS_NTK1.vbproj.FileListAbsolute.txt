@@ -40,3 +40,4 @@ C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe.li
 C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe
 C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.xml
 C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.pdb
+C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.vbprojResolveAssemblyReference.cache

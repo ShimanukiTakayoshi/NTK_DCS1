@@ -1,70 +1,65 @@
 ﻿Public Class frmMain
     'データ保存関連
-    Public SaveFolder As String = "c:\NTK" 'CSVファイル保存先メインフォルダ
-    Public SaveSubFolder As String = ""    'CSVファイル保存先サブホルダ
-    Public SaveFileName As String = ""     'CSVファイル名
-    Public SaveFileNameQu As String = ""     'CSVファイル名
-    Public Gouki As Integer = 1            '号機番号
+    Public SaveFolder As String = "c:\NTK"  'CSVファイル保存先メインフォルダ
+    Public SaveSubFolder As String = ""     'CSVファイル保存先サブホルダ
+    Public SaveFileName As String = ""      'CSVファイル名
+    Public SaveFileNameQu As String = ""    'CSVファイル名
+    Public Gouki As Integer = 1             '号機番号
     Public SaveTimeH As String = "00"       'データ保存ファイル切替時間(H)
-    Public SaveTimeM As String = "00"      'データ保存ファイル切替時間(M)
+    Public SaveTimeM As String = "00"       'データ保存ファイル切替時間(M)
     'PLC通信アドレス設定
     Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
 	Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
     Public QuTriggerAdress As Long = 12300      '品質ﾃﾞｰﾀﾄﾘｶﾞ
 
-	Public ElementNo As String = ""         '素子品番
-    Public LotNo As String = ""             'ﾒｯｷﾛｯﾄNo.
-    Public OperatorNo As String = ""        '作業者
-    Public StartTime As String = ""         '仕掛時間
-    Public EndTime As String = ""           '完了時間
-    Public ProcessTime As String = ""       '処理時間
-    Public ProbeData(9) As Long            '各ﾌﾟﾛｰﾌﾞ使用回数
-    Public StartTimeValue As Long = 0
-    Public EndTimeValue As Long = 0
+    Public ElementNo As String = ""     '素子品番
+    Public LotNo As String = ""         'ﾒｯｷﾛｯﾄNo.
+    Public OperatorNo As String = ""    '作業者
+    Public StartTime As String = ""     '仕掛時間
+    Public EndTime As String = ""       '完了時間
+    Public ProcessTime As String = ""   '処理時間
+    Public ProbeData(9) As Long         '各ﾌﾟﾛｰﾌﾞ使用回数
+    Public StartTimeValue As Long = 0   '開始時間(秒数)
+    Public EndTimeValue As Long = 0     '終了時間(秒数)
     Public dtNow As DateTime
 
-    Public SayaNo As Integer = 0
-	Public SayaPosi(4) As Integer
-	Public IndexNo As Integer = 0
-	Public JudgeLead(4) As Integer
-	Public JudgeDet(4) As Integer
-	Public JudgeLen1(4) As Integer
-	Public JudgeLen2(4) As Integer
-	Public RetryLead(4) As Integer
-	Public RetryDet(4) As Integer
-	Public RetryLen1(4) As Integer
-    Public RetryLen2(4) As Integer
-	Public Zaika(4) As Integer
-	Public ReDet(4) As String
-	Public ReLen1(4) As String
-    Public ReLen2(4) As String
-    Public ReShift(24) As String
-    Public FormatData(100) As String
-    Public EqChartRow As Integer = 8
-    Public QuChartRow As Integer = 4
+    Public SayaNo As Integer = 0        'サヤ番号
+    Public SayaPosi(4) As Integer       'サヤ上ﾜｰｸ位置番号
+    Public IndexNo As Integer = 0       'ｲﾝﾃﾞｯｸｽ ｽﾃｰｼｮﾝ番号
+    Public JudgeLead(4) As Integer      'ﾘｰﾄﾞ位置決めOK/NG
+    Public JudgeDet(4) As Integer       '検知抵抗OK/NG
+    Public JudgeLen1(4) As Integer      '全長抵抗1 OK/NG
+    Public JudgeLen2(4) As Integer      '全長抵抗2 OK/NG
+    'Public RetryLead(4) As Integer      'ﾘｰﾄﾞ位置決めﾘﾄﾗｲ有無
+    Public RetryDet(4) As Integer       '検知抵抗ﾘﾄﾗｲ有無
+    Public RetryLen1(4) As Integer      '全長抵抗1ﾘﾄﾗｲ有無
+    Public RetryLen2(4) As Integer      '全長抵抗2ﾘﾄﾗｲ有無
+    Public Zaika(4) As Integer          '在荷有無
+    Public ReDet(4) As String           '検知抵抗測定値
+    Public ReLen1(4) As String          '全長抵抗1測定値
+    Public ReLen2(4) As String          '全長抵抗2測定値
+    Public ReShift(24) As String        'ﾃﾞﾊﾞｯｸﾞﾓﾆﾀ用ｼﾌﾄﾃﾞｰﾀ
+    'Public FormatData(100) As String
+    Public EqChartRow As Integer = 8      '設備ﾁｬｰﾄ_ｽｸﾛｰﾙ制御用
+    Public QuChartRow As Integer = 4      '品質ﾁｬｰﾄ_ｽｸﾛｰﾙ制御用
+    Public QuData(4, 70) As String        '取得_品質ﾃﾞｰﾀ
+    Public StackData(13, 110) As String   '設備ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
+    Public StackCounter As Integer = 0    '設備ﾁｬｰﾄ ｽﾀｯｸｶｳﾝﾀｰ
+    Public QuStackData(500, 12) As String '品質ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
+    Public QuStackCounter As Integer = 0  '品質ﾁｬｰﾄ ｽﾀｯｸｶｳﾝﾀｰ
 
-	Public QuData(4, 70) As String             '品質ﾃﾞｰﾀ
+    Public EqStartedFlag As Boolean = False         '設備ﾃﾞｰﾀ集計開始ﾌﾗｸﾞ
+    Public PlcReadingFlag As Boolean = False        'PLC通信中ﾌﾗｸﾞ
+    Public SaveDataFirstFlag As Boolean = True      '設備ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
+    Public SaveDataFirstFlagQu As Boolean = True    '品質ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-	Public StackData(13, 110) As String     '装置 直近n=100個分ﾃﾞｰﾀ
-    Public StackCounter As Integer = 0      '装置 ｽﾀｯｸｶｳﾝﾀｰ
-	Public QuStackData(500, 12) As String '測定 直近n=100個分ﾃﾞｰﾀ
-    Public QuStackCounter As Integer = 0  '測定 ｽﾀｯｸｶｳﾝﾀｰ
-
-    Public EqStartedFlag As Boolean = False '設備ﾃﾞｰﾀ集計中ﾌﾗｸﾞ
-
-    Public PlcReadingFlag As Boolean = False    'PLC通信中ﾌﾗｸﾞ
-    Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
-    Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
-
-    Public DebugFlag As Boolean = True
-    Public DebugSatrtFlag As Boolean = False
-    Public DebugEndFlag As Boolean = False
-    Public DebugDataFlag As Boolean = False
-
-    Public SayaPosiDebugFlag As Boolean = True
-	Public tmp0 As Long = 0
-    Public TmpLong(20) As Long
-    Public TmpInt(299) As Long
+    Public DebugFlag As Boolean = False             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
+    Public DebugSatrtFlag As Boolean = False        'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得開始ﾌﾗｸﾞ
+    Public DebugEndFlag As Boolean = False          'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得完了ﾌﾗｸﾞ
+    Public DebugDataFlag As Boolean = False         'ﾃﾞﾊﾞｯｸﾞ用品質ﾃﾞｰﾀ取得ﾌﾗｸﾞ
+    Public SayaPosiDebugFlag As Boolean = True      'ｻﾔﾎﾟｼﾞｼｮﾝ生成ﾌﾗｸﾞ(もともとﾃﾞﾊﾞｯｸﾞ用だったが、通常使用となった。)
+    Public TmpLong(20) As Long                      '汎用
+    Public TmpInt(299) As Long                      '汎用
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         '二重起動防止
@@ -76,13 +71,30 @@
     End Sub
 
     Private Sub initialize()
+        'ﾃﾞﾊﾞｯｸﾞ用ｺﾝﾄﾛｰﾙ表示/非表示
+        If DebugFlag Then
+            TextBox2.Visible = True
+            TextBox3.Visible = True
+            TextBox4.Visible = True
+            btnStart.Visible = True
+            btnEnd.Visible = True
+            btnData.Visible = True
+            Button1.Visible = True
+            Button2.Visible = True
+        Else
+            TextBox2.Visible = False
+            TextBox3.Visible = False
+            TextBox4.Visible = False
+            btnStart.Visible = False
+            btnEnd.Visible = False
+            btnData.Visible = False
+            Button1.Visible = False
+            Button2.Visible = False
+        End If
         '設備結果ﾃﾞｰﾀｼｰﾄ
         DGVClear(dgvEq)
         Me.Width = 1024
         Me.Height = 768
-        'Me.FormBorderStyle = FormBorderStyle.FixedSingle
-        'Me.Width = Screen.GetBounds(Me).Width
-        'Me.Height = Screen.GetBounds(Me).Height
         Me.Left = 0
         Me.Top = 0
         Me.StartPosition = FormStartPosition.Manual
@@ -107,10 +119,10 @@
         dgvEq.Columns.Add("11", "全長②上")
         dgvEq.Columns.Add("12", "全長②横")
         dgvEq.Columns.Add("13", "全長②斜")
-		For i As Integer = 0 To 4
-			dgvEq.Columns(i).DefaultCellStyle = cstyle1
+        For i As Integer = 0 To 4
+            dgvEq.Columns(i).DefaultCellStyle = cstyle1
             dgvEq.Columns(i).Width = 59
-		Next i
+        Next i
         For i As Integer = 5 To 13
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
             dgvEq.Columns(i).Width = 63
@@ -127,7 +139,7 @@
         '品質結果ﾃﾞｰﾀｼｰﾄ
         DGVClear(dgvQu)
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
-        dgvQu.Width = 945
+        dgvQu.Width = 990 '945
         dgvQu.Height = 410 + 21 * 2
         Dim cstyle2 As New DataGridViewCellStyle
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
@@ -155,11 +167,11 @@
             dgvQu.Rows.Add("")
         Next
         dgvQu.Columns(0).Width = 110
-        dgvQu.Columns(1).Width = 70
-        dgvQu.Columns(2).Width = 70
-        dgvQu.Columns(3).Width = 70
-        dgvQu.Columns(5).Width = 85
-        dgvQu.Columns(8).Width = 85
+        dgvQu.Columns(1).Width = 85
+        dgvQu.Columns(2).Width = 85
+        dgvQu.Columns(3).Width = 71
+        dgvQu.Columns(5).Width = 92
+        dgvQu.Columns(8).Width = 92
         dgvQu.RowHeadersVisible = False
         dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvQu.CurrentCell = Nothing         '選択されているセルをなくす
@@ -167,8 +179,7 @@
     End Sub
 
     Private Sub timScan_Tick(sender As Object, e As EventArgs) Handles timScan.Tick
-        tmp0 = PlcRead(10410)
-        TextBox2.Text = Str(tmp0)
+        TextBox2.Text = Str(PlcRead(10410))
         If Not PlcReadingFlag Then
             Main()
         End If
@@ -737,21 +748,17 @@
         dgvEq.CurrentCell = Nothing         '選択されているセルをなくす
     End Sub
 
-    ''' ---------------------------------------------------------------------------
-    ''' <summary>
-    '''    同名のプロセスが起動しているかどうかを示す値を返します。</summary>
-    ''' <returns>
-    '''    同名のプロセスが起動中の場合は True。それ以外は False。</returns>
-    ''' ---------------------------------------------------------------------------
     Public Shared Function PrevInstance() As Boolean
+        ' ---------------------------------------------------------------------------
+        '    同名のプロセスが起動しているかどうかを示す値を返します。
+        '    同名のプロセスが起動中の場合は True。それ以外は False。
+        ' ---------------------------------------------------------------------------
         ' このアプリケーションのプロセス名を取得
         Dim stThisProcess As String = System.Diagnostics.Process.GetCurrentProcess().ProcessName
-
         ' 同名のプロセスが他に存在する場合は、既に起動していると判断する
         If System.Diagnostics.Process.GetProcessesByName(stThisProcess).Length > 1 Then
             Return True
         End If
-
         ' 存在しない場合は False を返す
         Return False
     End Function
@@ -793,8 +800,8 @@
         SaveFileName = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
         Dim Title As String = ""
         Title = "素子品番,ﾒｯｷﾛｯﾄ,作業者,仕掛時間,完了時間,検知上,検知横,検知下,全1上,全1下,全2上,全2横,全2斜" + vbCrLf
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".CSV", Title, True)
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".BKF", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".CSV", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".BKF", Title, True)
     End Sub
 
     Public Sub CreateSaveFileNameQu()
@@ -829,8 +836,8 @@
             InputString = InputString + StackData(i, StackCounter) + ","
         Next
         InputString = InputString & vbCrLf
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".CSV", InputString, True)
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi" + Trim(Str(Gouki)) + "_" + SaveFileName + ".BKF", InputString, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".CSV", InputString, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".BKF", InputString, True)
     End Sub
 
     Public Sub SaveDataQu()
@@ -863,33 +870,7 @@
         Next
     End Sub
 
-    'Public Sub SaveDataQu()
-    '    '起動初回確認
-    '    If SaveDataFirstFlagQu Then
-    '        CreateSaveFolder()
-    '        CreateSaveFileNameQu()
-    '        SaveDataFirstFlagQu = False
-    '    End If
-    '    '現在時刻確認
-    '    Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
-    '    Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
-    '    Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
-    '    If NowDate <> SaveFileNameQu And Val(NowTime) >= Val(SaveTimeH + SaveTimeM) Then
-    '        If NowYearMonth <> SaveSubFolder Then CreateSaveFolder()
-    '        CreateSaveFileNameQu()
-    '    End If
-    '    'データ保存
-    '    Dim InputString As String = ""
-    '    For i As Integer = 0 To 3
-    '        InputString = ""
-    '        For j As Integer = 0 To 12
-    '            InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
-    '        Next
-    '        InputString = InputString & vbCrLf
-    '        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", InputString, True)
-    '        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", InputString, True)
-    '    Next
-    'End Sub
+    'ﾃﾞﾊﾞｯｸﾞ用
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         frmDebug.Show()
