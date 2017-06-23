@@ -33,6 +33,9 @@ Partial Class frmMain
         Me.Button2 = New System.Windows.Forms.Button()
         Me.TextBox3 = New System.Windows.Forms.TextBox()
         Me.TextBox4 = New System.Windows.Forms.TextBox()
+        Me.btnStart = New System.Windows.Forms.Button()
+        Me.btnEnd = New System.Windows.Forms.Button()
+        Me.btnData = New System.Windows.Forms.Button()
         CType(Me.dgvEq, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvQu, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -53,7 +56,7 @@ Partial Class frmMain
         'timScan
         '
         Me.timScan.Enabled = True
-        Me.timScan.Interval = 250
+        Me.timScan.Interval = 1000
         '
         'TextBox1
         '
@@ -122,11 +125,41 @@ Partial Class frmMain
         Me.TextBox4.TabIndex = 7
         Me.TextBox4.Visible = False
         '
+        'btnStart
+        '
+        Me.btnStart.Location = New System.Drawing.Point(957, 455)
+        Me.btnStart.Name = "btnStart"
+        Me.btnStart.Size = New System.Drawing.Size(56, 18)
+        Me.btnStart.TabIndex = 8
+        Me.btnStart.Text = "Start"
+        Me.btnStart.UseVisualStyleBackColor = True
+        '
+        'btnEnd
+        '
+        Me.btnEnd.Location = New System.Drawing.Point(957, 486)
+        Me.btnEnd.Name = "btnEnd"
+        Me.btnEnd.Size = New System.Drawing.Size(55, 20)
+        Me.btnEnd.TabIndex = 9
+        Me.btnEnd.Text = "End"
+        Me.btnEnd.UseVisualStyleBackColor = True
+        '
+        'btnData
+        '
+        Me.btnData.Location = New System.Drawing.Point(957, 530)
+        Me.btnData.Name = "btnData"
+        Me.btnData.Size = New System.Drawing.Size(55, 20)
+        Me.btnData.TabIndex = 10
+        Me.btnData.Text = "DataGet"
+        Me.btnData.UseVisualStyleBackColor = True
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1026, 673)
+        Me.Controls.Add(Me.btnData)
+        Me.Controls.Add(Me.btnEnd)
+        Me.Controls.Add(Me.btnStart)
         Me.Controls.Add(Me.TextBox4)
         Me.Controls.Add(Me.TextBox3)
         Me.Controls.Add(Me.Button2)
@@ -153,4 +186,7 @@ Partial Class frmMain
     Friend WithEvents Button2 As System.Windows.Forms.Button
     Friend WithEvents TextBox3 As System.Windows.Forms.TextBox
     Friend WithEvents TextBox4 As System.Windows.Forms.TextBox
+    Friend WithEvents btnStart As Button
+    Friend WithEvents btnEnd As Button
+    Friend WithEvents btnData As Button
 End Class

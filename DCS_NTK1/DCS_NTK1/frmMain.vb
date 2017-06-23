@@ -5,10 +5,10 @@
     Public SaveFileName As String = ""     'CSVファイル名
     Public SaveFileNameQu As String = ""     'CSVファイル名
     Public Gouki As Integer = 1            '号機番号
-    Public SaveTimeH As String = "0"       'データ保存ファイル切替時間(H)
-    Public SaveTimeM As String = "1"      'データ保存ファイル切替時間(M)
-	'PLC通信アドレス設定
-	Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
+    Public SaveTimeH As String = "00"       'データ保存ファイル切替時間(H)
+    Public SaveTimeM As String = "00"      'データ保存ファイル切替時間(M)
+    'PLC通信アドレス設定
+    Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
 	Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
     Public QuTriggerAdress As Long = 12300      '品質ﾃﾞｰﾀﾄﾘｶﾞ
 
@@ -56,22 +56,15 @@
     Public SaveDataFirstFlag As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True  '初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = False
+    Public DebugFlag As Boolean = True
+    Public DebugSatrtFlag As Boolean = False
+    Public DebugEndFlag As Boolean = False
+    Public DebugDataFlag As Boolean = False
+
     Public SayaPosiDebugFlag As Boolean = True
 	Public tmp0 As Long = 0
     Public TmpLong(20) As Long
     Public TmpInt(299) As Long
-
-    Protected Shared Sub Start()
-        ' 同名のプロセスが起動していない時は起動する
-        If PrevInstance() = True Then
-            'Application.Run(New frmMain())
-            Application.Exit()
-            ' 既に起動中である旨を表示 (推奨しません)
-            'Else
-            '    MessageBox.Show("既に起動しています")
-        End If
-    End Sub
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         '二重起動防止
@@ -182,10 +175,11 @@
     End Sub
 
 	Public Sub Main()
-		'スタートトリガ監視
-		If PlcRead(StartTriggerAdress) <> 0 Then
-			PlcWrite(StartTriggerAdress, 0)
-			If Not EqStartedFlag Then
+        'スタートトリガ監視
+        If PlcRead(StartTriggerAdress) <> 0 Or DebugSatrtFlag Then
+            DebugSatrtFlag = False
+            PlcWrite(StartTriggerAdress, 0)
+            If Not EqStartedFlag Then
                 EqStartedFlag = True
                 StartTime = Trim(CStr(Now))
                 dtNow = DateTime.Now
@@ -196,39 +190,43 @@
                 'LotNo = "Lot123"
                 EndTime = ""
                 ProcessTime = ""
-				For i As Integer = 0 To 7
-					ProbeData(i) = 0
-				Next
-				StackSet()
+                For i As Integer = 0 To 7
+                    ProbeData(i) = 0
+                Next
+                StackSet()
                 DrawChartSetubi()
                 MakeElementFolder()
                 'MakeLotFile()
             End If
-		End If
-		'エンドトリガ監視
-		If PlcRead(EndTriggerAdress) <> 0 Then
-			PlcWrite(EndTriggerAdress, 0)
-			If EqStartedFlag Then
-				EndTime = Trim(CStr(Now))
+        End If
+        'エンドトリガ監視
+        If PlcRead(EndTriggerAdress) <> 0 Or DebugEndFlag Then
+            DebugEndFlag = False
+            PlcWrite(EndTriggerAdress, 0)
+            If EqStartedFlag Then
+                EndTime = Trim(CStr(Now))
                 dtNow = DateTime.Now
                 EndTimeValue = TimeValue(dtNow)
-                If StartTimeValue > EndTimeValue Then EndTimeValue += 3600
+                If StartTimeValue > EndTimeValue Then
+                    EndTimeValue += 86400
+                End If
                 Dim a0 As Long = EndTimeValue - StartTimeValue
                 Dim s0 As String = Trim(Str(Int(a0 / 60)))
                 Dim s1 As String = Trim(Str(a0 Mod 60))
                 If Len(s1) = 1 Then s1 = "0" + s1
                 ProcessTime = s0 & ":" & s1
                 GetPlcData()
-				StackSet()
-				DrawChartSetubi()
-				SaveData()
-				EqStartedFlag = False
-			End If
-		End If
-		'測定データトリガ監視
-		If PlcRead(QuTriggerAdress) <> 0 Then
-			PlcWrite(QuTriggerAdress, 0)
-			QuStackCounter += 1
+                StackSet()
+                DrawChartSetubi()
+                SaveData()
+                EqStartedFlag = False
+            End If
+        End If
+        '測定データトリガ監視
+        If PlcRead(QuTriggerAdress) <> 0 Or DebugDataFlag Then
+            DebugDataFlag = False
+            PlcWrite(QuTriggerAdress, 0)
+            QuStackCounter += 1
             GetPlcData()
             If (SayaNo >= 1 And SayaNo <= 12) And (SayaPosi(0) > 0 And SayaPosi(1) > 0 And SayaPosi(2) > 0 And SayaPosi(3) > 0) Then
                 ChFormat()
@@ -239,7 +237,7 @@
                 QuStackCounter -= 1
             End If
         End If
-	End Sub
+    End Sub
 
     Public Sub GetPlcData()
         If Not DebugFlag Then
@@ -547,7 +545,7 @@
                 PlcRead = 0
             End Try
         Else
-            PlcRead = 99
+            PlcRead = 0
         End If
     End Function
 
@@ -899,6 +897,18 @@
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         TextBox3.Text = ChangeData(TextBox4.Text)
+    End Sub
+
+    Private Sub btnStart_Click(sender As Object, e As EventArgs) Handles btnStart.Click
+        DebugSatrtFlag = True
+    End Sub
+
+    Private Sub btnEnd_Click(sender As Object, e As EventArgs) Handles btnEnd.Click
+        DebugEndFlag = True
+    End Sub
+
+    Private Sub btnData_Click(sender As Object, e As EventArgs) Handles btnData.Click
+        DebugDataFlag = True
     End Sub
 End Class
 
