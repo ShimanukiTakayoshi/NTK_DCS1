@@ -539,11 +539,11 @@
             Try
                 PlcRead = SysmacCJ.DM(address)
             Catch ex As Exception
+                timScan.Enabled = False
                 If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
-                    timScan.Enabled = False
                     Application.Exit()
                 End If
-                Application.Exit()
+                timScan.Enabled = True
                 PlcRead = 0
             End Try
         Else
@@ -559,9 +559,11 @@
             Try
                 SysmacCJ.DM(address) = value
             Catch ex As Exception
+                timScan.Enabled = False
                 If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
                     Application.Exit()
                 End If
+                timScan.Enabled = True
             End Try
         End If
     End Sub
@@ -581,10 +583,11 @@
                     PlcReadStrings += HexAsc(tmp2(i))
                 Next
             Catch ex As Exception
+                timScan.Enabled = False
                 If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
                     Application.Exit()
                 End If
-                Application.Exit()
+                timScan.Enabled = True
                 PlcReadStrings = ""
             End Try
         Else
@@ -604,10 +607,11 @@
                     TmpLong(i) = tmp1(i)
                 Next
             Catch ex As Exception
+                timScan.Enabled = False
                 If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
                     Application.Exit()
                 End If
-                Application.Exit()
+                timScan.Enabled = True
             End Try
         Else
             For i As Integer = 0 To length
@@ -628,10 +632,11 @@
                     TmpInt(i) = tmp1(i)
                 Next
             Catch ex As Exception
+                timScan.Enabled = False
                 If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
                     Application.Exit()
                 End If
-                Application.Exit()
+                timScan.Enabled = True
             End Try
         Else
             For i As Integer = 0 To length

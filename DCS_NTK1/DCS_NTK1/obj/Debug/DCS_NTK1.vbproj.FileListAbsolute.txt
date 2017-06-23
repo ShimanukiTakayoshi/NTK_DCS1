@@ -40,3 +40,4 @@ C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.exe
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.xml
 C:\Users\Kyoei_Shimanuki\Documents\NTK_DCS1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.pdb
+C:\Users\pc155-PC\Documents\DCS_NTK1\DCS_NTK1\DCS_NTK1\obj\Debug\DCS_NTK1.frmDebug.resources
