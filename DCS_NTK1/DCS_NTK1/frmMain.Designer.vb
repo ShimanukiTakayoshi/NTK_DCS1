@@ -35,6 +35,8 @@ Partial Class frmMain
         Me.btnStart = New System.Windows.Forms.Button()
         Me.btnEnd = New System.Windows.Forms.Button()
         Me.btnData = New System.Windows.Forms.Button()
+        Me.timHeartBeat = New System.Windows.Forms.Timer(Me.components)
+        Me.btnDebugMode = New System.Windows.Forms.Button()
         CType(Me.dgvEq, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvQu, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -144,11 +146,25 @@ Partial Class frmMain
         Me.btnData.Text = "DataGet"
         Me.btnData.UseVisualStyleBackColor = True
         '
+        'timHeartBeat
+        '
+        Me.timHeartBeat.Enabled = True
+        Me.timHeartBeat.Interval = 500
+        '
+        'btnDebugMode
+        '
+        Me.btnDebugMode.Location = New System.Drawing.Point(152, 1)
+        Me.btnDebugMode.Name = "btnDebugMode"
+        Me.btnDebugMode.Size = New System.Drawing.Size(53, 11)
+        Me.btnDebugMode.TabIndex = 11
+        Me.btnDebugMode.UseVisualStyleBackColor = True
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1008, 729)
+        Me.Controls.Add(Me.btnDebugMode)
         Me.Controls.Add(Me.btnData)
         Me.Controls.Add(Me.btnEnd)
         Me.Controls.Add(Me.btnStart)
@@ -179,4 +195,6 @@ Partial Class frmMain
     Friend WithEvents btnStart As Button
     Friend WithEvents btnEnd As Button
     Friend WithEvents btnData As Button
+    Friend WithEvents timHeartBeat As System.Windows.Forms.Timer
+    Friend WithEvents btnDebugMode As System.Windows.Forms.Button
 End Class

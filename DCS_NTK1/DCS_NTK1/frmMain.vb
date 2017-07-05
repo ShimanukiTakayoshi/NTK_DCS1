@@ -11,6 +11,8 @@
     Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
 	Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
     Public QuTriggerAdress As Long = 12300      '品質ﾃﾞｰﾀﾄﾘｶﾞ
+    Public HeartBeatAdress As Long = 12310      '起動中ﾊﾟﾙｽ出力ｱﾄﾞﾚｽ
+    Public HeartBeat As Boolean = False         '起動中ﾊﾟﾙｽ
 
     Public ElementNo As String = ""     '素子品番
     Public LotNo As String = ""         'ﾒｯｷﾛｯﾄNo.
@@ -21,7 +23,7 @@
     Public ProbeData(9) As Long         '各ﾌﾟﾛｰﾌﾞ使用回数
     Public StartTimeValue As Long = 0   '開始時間(秒数)
     Public EndTimeValue As Long = 0     '終了時間(秒数)
-    Public dtNow As DateTime
+    Public dtNow As DateTime            '現在時刻取得用
 
     Public SayaNo As Integer = 0        'サヤ番号
     Public SayaPosi(4) As Integer       'サヤ上ﾜｰｸ位置番号
@@ -185,30 +187,59 @@
         End If
     End Sub
 
+    Private Sub timHeartBeat_Tick(sender As Object, e As EventArgs) Handles timHeartBeat.Tick
+        If Not DebugFlag Then
+            If HeartBeat Then
+                PlcWrite(HeartBeatAdress, 0)
+                HeartBeat = False
+            Else
+                PlcWrite(HeartBeatAdress, 1)
+                HeartBeat = True
+            End If
+        End If
+    End Sub
+
 	Public Sub Main()
         'スタートトリガ監視
         If PlcRead(StartTriggerAdress) <> 0 Or DebugSatrtFlag Then
             DebugSatrtFlag = False
             PlcWrite(StartTriggerAdress, 0)
-            If Not EqStartedFlag Then
-                EqStartedFlag = True
-                StartTime = Trim(CStr(Now))
-                dtNow = DateTime.Now
-                StartTimeValue = TimeValue(dtNow)
-                StackCounter += 1
-                GetPlcData()
-                'ElementNo = "Element123"
-                'LotNo = "Lot123"
-                EndTime = ""
-                ProcessTime = ""
-                For i As Integer = 0 To 7
-                    ProbeData(i) = 0
-                Next
-                StackSet()
-                DrawChartSetubi()
-                MakeElementFolder()
-                'MakeLotFile()
-            End If
+            'If Not EqStartedFlag Then
+            '    EqStartedFlag = True
+            '    StartTime = Trim(CStr(Now))
+            '    dtNow = DateTime.Now
+            '    StartTimeValue = TimeValue(dtNow)
+            '    StackCounter += 1
+            '    GetPlcData()
+            '    'ElementNo = "Element123"
+            '    'LotNo = "Lot123"
+            '    EndTime = ""
+            '    ProcessTime = ""
+            '    For i As Integer = 0 To 7
+            '        ProbeData(i) = 0
+            '    Next
+            '    StackSet()
+            '    DrawChartSetubi()
+            '    MakeElementFolder()
+            '    'MakeLotFile()
+            'End If
+            EqStartedFlag = True
+            StartTime = Trim(CStr(Now))
+            dtNow = DateTime.Now
+            StartTimeValue = TimeValue(dtNow)
+            StackCounter += 1
+            GetPlcData()
+            'ElementNo = "Element123"
+            'LotNo = "Lot123"
+            EndTime = ""
+            ProcessTime = ""
+            For i As Integer = 0 To 7
+                ProbeData(i) = 0
+            Next
+            StackSet()
+            DrawChartSetubi()
+            MakeElementFolder()
+            'MakeLotFile()
         End If
         'エンドトリガ監視
         If PlcRead(EndTriggerAdress) <> 0 Or DebugEndFlag Then
@@ -423,38 +454,40 @@
 					QuData(i, 4) = "--"
 			End Select
             QuData(i, 5) = ChangeData(ReDet(i))
-			Select Case JudgeDet(i)
-				Case 0
-					QuData(i, 6) = "NG"
-				Case 1
-					QuData(i, 6) = "OK"
-				Case Else
-					QuData(i, 6) = "--"
-			End Select
-			Select Case RetryDet(i)
-				Case 1
-					QuData(i, 7) = "R"
-				Case Else
-					QuData(i, 7) = " "
-			End Select
+            Select Case JudgeDet(i)
+                Case 0
+                    QuData(i, 6) = "NG"
+                Case 1
+                    QuData(i, 6) = "OK"
+                Case Else
+                    QuData(i, 6) = "--"
+                    QuData(i, 5) = "未測定"
+            End Select
+            Select Case RetryDet(i)
+                Case 1
+                    QuData(i, 7) = "R"
+                Case Else
+                    QuData(i, 7) = " "
+            End Select
             QuData(i, 8) = ChangeData(ReLen(i))
-			Select Case JudgeLen(i)
-				Case 0
-					QuData(i, 9) = "NG"
-				Case 1
-					QuData(i, 9) = "OK"
-				Case Else
-					QuData(i, 9) = "--"
-			End Select
+            Select Case JudgeLen(i)
+                Case 0
+                    QuData(i, 9) = "NG"
+                Case 1
+                    QuData(i, 9) = "OK"
+                Case Else
+                    QuData(i, 9) = "--"
+                    QuData(i, 8) = "未測定"
+            End Select
             Select Case RetryLen(i)
                 Case 1
                     QuData(i, 10) = "R"
                 Case Else
                     QuData(i, 10) = " "
             End Select
-			QuData(i, 11) = CType(i + 1, String)
-			QuData(i, 12) = CType(IndexNo, String)
-		Next i
+            QuData(i, 11) = CType(i + 1, String)
+            QuData(i, 12) = CType(IndexNo, String)
+        Next i
 	End Sub
 
 	Private Sub StackSet()
@@ -569,10 +602,12 @@
                 SysmacCJ.DM(address) = value
             Catch ex As Exception
                 timScan.Enabled = False
+                timHeartBeat.Enabled = False
                 If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
                     Application.Exit()
                 End If
                 timScan.Enabled = True
+                timHeartBeat.Enabled = True
             End Try
         End If
     End Sub
@@ -662,12 +697,12 @@
         If Val("&h" + s1) >= &H20 And Val("&h" + s1) <= &H7E Then
             HexAsc = Chr(CInt("&h" + s1))
         Else
-            HexAsc = "?"
+            HexAsc = "_"
         End If
         If Val("&h" + s2) >= &H20 And Val("&h" + s2) <= &H7E Then
             HexAsc += Chr(CInt("&h" + s2))
         Else
-            HexAsc += "?"
+            HexAsc += "_"
         End If
     End Function
 
@@ -716,7 +751,11 @@
                 End If
             End If
         End If
-        ChangeData = s1
+        If Val(s1) < 100 Then
+            ChangeData = s1
+        Else
+            ChangeData = "ﾌﾟﾛｰﾌﾞｴﾗｰ"
+        End If
     End Function
 
     Public Sub DGVClear(ByVal dgv As DataGridView)
@@ -891,5 +930,28 @@
     Private Sub btnData_Click(sender As Object, e As EventArgs) Handles btnData.Click
         DebugDataFlag = True
     End Sub
-End Class
 
+    Private Sub btnDebugMode_Click(sender As Object, e As EventArgs) Handles btnDebugMode.Click
+        If DebugFlag Then
+            DebugFlag = False
+            TextBox2.Visible = True
+            TextBox3.Visible = True
+            TextBox4.Visible = True
+            btnStart.Visible = True
+            btnEnd.Visible = True
+            btnData.Visible = True
+            Button1.Visible = True
+            Button2.Visible = True
+        Else
+            DebugFlag = True
+            TextBox2.Visible = False
+            TextBox3.Visible = False
+            TextBox4.Visible = False
+            btnStart.Visible = False
+            btnEnd.Visible = False
+            btnData.Visible = False
+            Button1.Visible = False
+            Button2.Visible = False
+        End If
+    End Sub
+End Class

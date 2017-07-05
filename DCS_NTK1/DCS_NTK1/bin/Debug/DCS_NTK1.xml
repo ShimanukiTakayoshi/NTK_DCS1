@@ -6,29 +6,19 @@ DCS_NTK1
 </name>
 </assembly>
 <members>
-<member name="T:DCS_NTK1.My.Resources.Resources">
-<summary>
-  A strongly-typed resource class, for looking up localized strings, etc.
-</summary>
-</member>
 <member name="P:DCS_NTK1.My.Resources.Resources.ResourceManager">
-<summary>
+	<summary>
   Returns the cached ResourceManager instance used by this class.
 </summary>
-</member>
-<member name="P:DCS_NTK1.My.Resources.Resources.Culture">
-<summary>
+</member><member name="P:DCS_NTK1.My.Resources.Resources.Culture">
+	<summary>
   Overrides the current thread's CurrentUICulture property for all
   resource lookups using this strongly typed resource class.
 </summary>
-</member>
-<member name="M:DCS_NTK1.frmMain.PrevInstance">
- ---------------------------------------------------------------------------
- <summary>
-    同名のプロセスが起動しているかどうかを示す値を返します。</summary>
- <returns>
-    同名のプロセスが起動中の場合は True。それ以外は False。</returns>
- ---------------------------------------------------------------------------
+</member><member name="T:DCS_NTK1.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
 </member>
 </members>
 </doc>
