@@ -393,7 +393,8 @@
         End If
         If DebugFlag Then
             ElementNo = "Ele123y8"
-            LotNo = "Lot12399"
+            Dim s0 As String = Trim(Str(Int(Rnd(1) * 10)))
+            LotNo = "Lot12398" & s0
         End If
     End Sub
 
@@ -817,10 +818,17 @@
         '保存ファイル生成
         SaveFileNameQu = LotNo
         Dim Title As String = ""
+        Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu
         Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV", Title, True)
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".BKF", Title, True)
+        If Not System.IO.File.Exists(FileName + ".CSV") Then
+            My.Computer.FileSystem.WriteAllText(FileName + ".CSV", Title, True)
+        End If
+        If Not System.IO.File.Exists(FileName + ".BKF") Then
+            My.Computer.FileSystem.WriteAllText(FileName + ".BKF", Title, True)
+        End If
         SaveDataFirstFlagQu = False
+        'データ保存
+
     End Sub
 
     Public Sub CreateSaveFolder()
@@ -917,10 +925,10 @@
             CreateSaveFolderQu()
         End If
         '保存ファイルの確認
-        Dim x2 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
-        If Not System.IO.File.Exists(x2) Then
-            MakeLotFile()
-        End If
+        'Dim x2 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
+        'If Not System.IO.File.Exists(x2) Then
+        MakeLotFile()
+        'End If
         'データ保存
         Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
         Dim InputString As String = ""
