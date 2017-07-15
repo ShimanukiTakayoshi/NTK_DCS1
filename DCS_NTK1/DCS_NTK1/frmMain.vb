@@ -2,6 +2,7 @@
     'データ保存関連
     Public SaveFolder As String = "c:\NTK"  'CSVファイル保存先メインフォルダ
     Public SaveSubFolder As String = ""     'CSVファイル保存先サブホルダ
+    Public SaveSubFolderQu As String = ""     'CSVファイル保存先サブホルダ
     Public SaveFileName As String = ""      'CSVファイル名
     Public SaveFileNameQu As String = ""    'CSVファイル名
     Public Gouki As Integer = 1             '号機番号
@@ -55,10 +56,10 @@
     Public SaveDataFirstFlag As Boolean = True      '設備ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True    '品質ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = False             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
+    Public DebugFlag As Boolean = True             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
     Public DebugSatrtFlag As Boolean = False        'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得開始ﾌﾗｸﾞ
     Public DebugEndFlag As Boolean = False          'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得完了ﾌﾗｸﾞ
-    Public DebugDataFlag As Boolean = False         'ﾃﾞﾊﾞｯｸﾞ用品質ﾃﾞｰﾀ取得ﾌﾗｸﾞ
+    Public DebugDataFlag As Boolean = True         'ﾃﾞﾊﾞｯｸﾞ用品質ﾃﾞｰﾀ取得ﾌﾗｸﾞ
     Public SayaPosiDebugFlag As Boolean = True      'ｻﾔﾎﾟｼﾞｼｮﾝ生成ﾌﾗｸﾞ(もともとﾃﾞﾊﾞｯｸﾞ用だったが、通常使用となった。)
     Public TmpLong(20) As Long                      '汎用
     Public TmpInt(299) As Long                      '汎用
@@ -100,12 +101,12 @@
         Me.Left = 0
         Me.Top = 0
         Me.StartPosition = FormStartPosition.Manual
-        dgvEq.Width = 990
+        dgvEq.Width = 990 + 13
         dgvEq.Height = 263 - 21 * 2
         Dim cstyle1 As New DataGridViewCellStyle
-        cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
+        cstyle1.Alignment = DataGridViewContentAlignment.MiddleRight
         Dim columnHeaderStyle As DataGridViewCellStyle = dgvEq.ColumnHeadersDefaultCellStyle
-        dgvEq.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        dgvEq.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
         columnHeaderStyle.Font = New Font("ＭＳ ゴシック", 8)
         dgvEq.Columns.Add("0", "品番")
         dgvEq.Columns.Add("1", "Lot")
@@ -123,12 +124,14 @@
         dgvEq.Columns.Add("13", "全長②斜")
         For i As Integer = 0 To 4
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
-            dgvEq.Columns(i).Width = 59
+            dgvEq.Columns(i).Width = 58
         Next i
         For i As Integer = 5 To 13
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
-            dgvEq.Columns(i).Width = 63
+            dgvEq.Columns(i).Width = 62
         Next i
+        dgvEq.Columns(0).Width = 70
+        dgvEq.Columns(1).Width = 70
         dgvEq.Columns(2).Width = 65
         dgvEq.Columns(3).Width = 110
         dgvEq.Columns(4).Width = 110
@@ -141,7 +144,7 @@
         '品質結果ﾃﾞｰﾀｼｰﾄ
         DGVClear(dgvQu)
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
-        dgvQu.Width = 990 '945
+        dgvQu.Width = 990 + 13 '945
         dgvQu.Height = 410 + 21 * 2
         Dim cstyle2 As New DataGridViewCellStyle
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
@@ -163,17 +166,17 @@
         dgvQu.Columns.Add("12", "ｲﾝﾃﾞｯｸｽ治具No.")
         For i As Integer = 0 To 12
             dgvQu.Columns(i).DefaultCellStyle = cstyle1
-            dgvQu.Columns(i).Width = 62
+            dgvQu.Columns(i).Width = 63
         Next i
         For i As Integer = 0 To 19
             dgvQu.Rows.Add("")
         Next
-        dgvQu.Columns(0).Width = 110
-        dgvQu.Columns(1).Width = 85
-        dgvQu.Columns(2).Width = 85
-        dgvQu.Columns(3).Width = 71
-        dgvQu.Columns(5).Width = 92
-        dgvQu.Columns(8).Width = 92
+        dgvQu.Columns(0).Width = 111
+        dgvQu.Columns(1).Width = 86
+        dgvQu.Columns(2).Width = 87
+        dgvQu.Columns(3).Width = 72
+        dgvQu.Columns(5).Width = 93
+        dgvQu.Columns(8).Width = 93
         dgvQu.RowHeadersVisible = False
         dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvQu.CurrentCell = Nothing         '選択されているセルをなくす
@@ -287,11 +290,11 @@
             PlcReadWord(12000, 240)
             PlcReadingFlag = False
             '設備ﾃﾞｰﾀ読込
-            ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3)))
-            LotNo = HexAsc(Hex(TmpInt(4))) & HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7)))
-            OperatorNo = HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9))) & HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11)))
+            ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3))) & HexAsc(Hex(TmpInt(4)))
+            LotNo = HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7))) & HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9)))
+            OperatorNo = HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11))) & HexAsc(Hex(TmpInt(12))) & HexAsc(Hex(TmpInt(13))) & HexAsc(Hex(TmpInt(14)))
             For i As Short = 0 To 7
-                ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 13)) & Hex(TmpInt(i * 2 + 12))))
+                ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 16)) & Hex(TmpInt(i * 2 + 15))))
             Next i
             '品質ﾃﾞｰﾀ読込
             SayaNo = CInt(TmpInt(100))
@@ -805,12 +808,9 @@
     '各ファイル保存
 
     Public Sub MakeElementFolder()
-        If ElementNo <> "" And InStr(ElementNo, "?") = 0 Then
-            Dim di As System.IO.DirectoryInfo = New System.IO.DirectoryInfo(SaveFolder + "\" + ElementNo)
-            di.Create()
-        Else
-            '
-        End If
+        If ElementNo = "" And InStr(ElementNo, "?") <> 0 Then ElementNo = "Unknown"
+        Dim di As System.IO.DirectoryInfo = New System.IO.DirectoryInfo(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu)
+        di.Create()
     End Sub
 
     Public Sub MakeLotFile()
@@ -818,8 +818,8 @@
         SaveFileNameQu = LotNo
         Dim Title As String = ""
         Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".CSV", Title, True)
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".BKF", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".BKF", Title, True)
         SaveDataFirstFlagQu = False
     End Sub
 
@@ -832,13 +832,29 @@
         di.Create()
     End Sub
 
+    Public Sub CreateSaveFolderQu()
+        '品種名確認
+        If ElementNo = "" Or InStr(ElementNo, "?") <> 0 Then
+            ElementNo = "Unknown"
+        End If
+        '保存先フォルダ確認＆生成
+        Dim dt As DateTime = DateTime.Now
+        Dim b As String = dt.ToString
+        SaveSubFolderQu = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
+        Dim x1 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\"
+        If Not System.IO.Directory.Exists(x1) Then
+            Dim di As System.IO.DirectoryInfo = New System.IO.DirectoryInfo(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu)
+            di.Create()
+        End If
+    End Sub
+
     Public Sub CreateSaveFileName()
         '保存ファイル生成
         Dim dt As DateTime = DateTime.Now
         Dim b As String = dt.ToString
         SaveFileName = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
         Dim Title As String = ""
-        Title = "素子品番,ﾒｯｷﾛｯﾄ,作業者,仕掛時間,完了時間,検知上,検知横,検知下,全1上,全1下,全2上,全2横,全2斜" + vbCrLf
+        Title = "素子品番,ﾒｯｷﾛｯﾄ,作業者,仕掛時間,完了時間,処理時間,検知上,検知横,検知下,全1上,全1下,全2上,全2横,全2斜" + vbCrLf
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".CSV", Title, True)
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".BKF", Title, True)
     End Sub
@@ -850,8 +866,8 @@
         SaveFileNameQu = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
         Dim Title As String = ""
         Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".CSV", Title, True)
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "Hinshitu" + Trim(Str(Gouki)) + "_" + SaveFileNameQu + ".BKF", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolder + "\" + SaveFileNameQu + ".CSV", Title, True)
+        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolder + "\" + SaveFileNameQu + ".BKF", Title, True)
     End Sub
 
     Public Sub SaveData()
@@ -871,7 +887,7 @@
         End If
         'データ保存
         Dim InputString As String = ""
-        For i As Integer = 0 To 12
+        For i As Integer = 0 To 13
             InputString = InputString + StackData(i, StackCounter) + ","
         Next
         InputString = InputString & vbCrLf
@@ -881,22 +897,32 @@
 
     Public Sub SaveDataQu()
         '起動初回確認
-        If SaveDataFirstFlagQu Then
-            MakeElementFolder()
-            MakeLotFile()
-            SaveDataFirstFlagQu = False
+        'If SaveDataFirstFlagQu Then
+        '    CreateSaveFolderQu()
+        '    'MakeElementFolder()
+        '    MakeLotFile()
+        '    SaveDataFirstFlagQu = False
+        'End If
+        '現在時刻確認
+        Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
+        Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
+        Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
+        If NowDate <> SaveSubFolderQu And Val(NowTime) >= Val(SaveTimeH + SaveTimeM) Then
+            CreateSaveFolderQu()
         End If
         '保存先フォルダ確認＆生成
-        Dim x1 As String = SaveFolder + "\" + ElementNo + "\"
+        Dim x1 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\"
         If Not System.IO.Directory.Exists(x1) Then
-            MakeElementFolder()
+            'MakeElementFolder()
+            CreateSaveFolderQu()
         End If
         '保存ファイルの確認
-        Dim x2 As String = SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".CSV"
+        Dim x2 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
         If Not System.IO.File.Exists(x2) Then
             MakeLotFile()
         End If
         'データ保存
+        Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
         Dim InputString As String = ""
         For i As Integer = 0 To 3
             InputString = ""
@@ -904,10 +930,50 @@
                 InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
             Next
             InputString = InputString & vbCrLf
-            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".CSV", InputString, True)
-            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveFileNameQu + ".BKF", InputString, True)
+            My.Computer.FileSystem.WriteAllText(FileName, InputString, True)
+            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".BKF", InputString, True)
         Next
     End Sub
+
+    'Public Sub SaveDataQu()
+    '    '起動初回確認
+    '    'If SaveDataFirstFlagQu Then
+    '    '    CreateSaveFolderQu()
+    '    '    'MakeElementFolder()
+    '    '    MakeLotFile()
+    '    '    SaveDataFirstFlagQu = False
+    '    'End If
+    '    '現在時刻確認
+    '    Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
+    '    Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
+    '    Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
+    '    If NowDate <> SaveSubFolderQu And Val(NowTime) >= Val(SaveTimeH + SaveTimeM) Then
+    '        CreateSaveFolderQu()
+    '    End If
+    '    '保存先フォルダ確認＆生成
+    '    Dim x1 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\"
+    '    If Not System.IO.Directory.Exists(x1) Then
+    '        'MakeElementFolder()
+    '        CreateSaveFolderQu()
+    '    End If
+    '    '保存ファイルの確認
+    '    Dim x2 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
+    '    If Not System.IO.File.Exists(x2) Then
+    '        MakeLotFile()
+    '    End If
+    '    'データ保存
+    '    Dim InputString As String = ""
+    '    For i As Integer = 0 To 3
+    '        InputString = ""
+    '        For j As Integer = 0 To 12
+    '            InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
+    '        Next
+    '        InputString = InputString & vbCrLf
+    '        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV", InputString, True)
+    '        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".BKF", InputString, True)
+    '    Next
+    'End Sub
+
 
     'ﾃﾞﾊﾞｯｸﾞ用
 

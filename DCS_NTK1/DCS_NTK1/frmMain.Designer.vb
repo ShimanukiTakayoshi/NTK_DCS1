@@ -62,7 +62,7 @@ Partial Class frmMain
         'dgvEq
         '
         Me.dgvEq.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvEq.Location = New System.Drawing.Point(12, 12)
+        Me.dgvEq.Location = New System.Drawing.Point(3, 12)
         Me.dgvEq.Name = "dgvEq"
         Me.dgvEq.RowTemplate.Height = 21
         Me.dgvEq.Size = New System.Drawing.Size(240, 150)
@@ -71,7 +71,7 @@ Partial Class frmMain
         'dgvQu
         '
         Me.dgvQu.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvQu.Location = New System.Drawing.Point(12, 238)
+        Me.dgvQu.Location = New System.Drawing.Point(3, 238)
         Me.dgvQu.Name = "dgvQu"
         Me.dgvQu.RowTemplate.Height = 21
         Me.dgvQu.Size = New System.Drawing.Size(240, 150)
@@ -158,6 +158,7 @@ Partial Class frmMain
         Me.btnDebugMode.Size = New System.Drawing.Size(53, 11)
         Me.btnDebugMode.TabIndex = 11
         Me.btnDebugMode.UseVisualStyleBackColor = True
+        Me.btnDebugMode.Visible = False
         '
         'frmMain
         '
