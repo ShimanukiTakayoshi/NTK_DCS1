@@ -48,7 +48,7 @@
     Public QuData(4, 70) As String        '取得_品質ﾃﾞｰﾀ
     Public StackData(13, 110) As String   '設備ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
     Public StackCounter As Integer = 0    '設備ﾁｬｰﾄ ｽﾀｯｸｶｳﾝﾀｰ
-    Public QuStackData(500, 12) As String '品質ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
+    Public QuStackData(600, 12) As String '品質ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
     Public QuStackCounter As Integer = 0  '品質ﾁｬｰﾄ ｽﾀｯｸｶｳﾝﾀｰ
 
     Public EqStartedFlag As Boolean = False         '設備ﾃﾞｰﾀ集計開始ﾌﾗｸﾞ
@@ -56,13 +56,15 @@
     Public SaveDataFirstFlag As Boolean = True      '設備ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True    '品質ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = True             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
+    Public DebugFlag As Boolean = False             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
     Public DebugSatrtFlag As Boolean = False        'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得開始ﾌﾗｸﾞ
     Public DebugEndFlag As Boolean = False          'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得完了ﾌﾗｸﾞ
-    Public DebugDataFlag As Boolean = True         'ﾃﾞﾊﾞｯｸﾞ用品質ﾃﾞｰﾀ取得ﾌﾗｸﾞ
+    Public DebugDataFlag As Boolean = False         'ﾃﾞﾊﾞｯｸﾞ用品質ﾃﾞｰﾀ取得ﾌﾗｸﾞ
     Public SayaPosiDebugFlag As Boolean = True      'ｻﾔﾎﾟｼﾞｼｮﾝ生成ﾌﾗｸﾞ(もともとﾃﾞﾊﾞｯｸﾞ用だったが、通常使用となった。)
     Public TmpLong(20) As Long                      '汎用
     Public TmpInt(299) As Long                      '汎用
+    Public Fc As Integer = 0
+    Public AddFc As String = ""
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         '二重起動防止
@@ -520,17 +522,17 @@
 				QuStackData(QuStackCounter * 4 + i, j) = QuData(i, j)
 			Next j
 		Next i
-		If QuStackCounter > 100 Then
-			For i As Integer = 1 To 100
-				For j As Integer = 0 To 12
+        If QuStackCounter > 100 Then
+            For i As Integer = 1 To 100
+                For j As Integer = 0 To 12
                     QuStackData(i * 4 + 0, j) = QuStackData((i + 1) * 4 + 0, j)
                     QuStackData(i * 4 + 1, j) = QuStackData((i + 1) * 4 + 1, j)
                     QuStackData(i * 4 + 2, j) = QuStackData((i + 1) * 4 + 2, j)
                     QuStackData(i * 4 + 3, j) = QuStackData((i + 1) * 4 + 3, j)
                 Next
-			Next
-			QuStackCounter = 100
-		End If
+            Next
+            QuStackCounter = 100
+        End If
 	End Sub
 
     Public Sub DrawChartSetubi()
@@ -820,9 +822,37 @@
         Dim Title As String = ""
         Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu
         Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
-        If Not System.IO.File.Exists(FileName + ".CSV") Then
-            My.Computer.FileSystem.WriteAllText(FileName + ".CSV", Title, True)
-        End If
+        'If Not System.IO.File.Exists(FileName + ".CSV") Then
+        '    My.Computer.FileSystem.WriteAllText(FileName + ".CSV", Title, True)
+        'End If
+
+        'Shift JISで書き込む
+        '書き込むファイルが既に存在している場合は、上書きする
+        Dim sw As New System.IO.StreamWriter(FileName & ".CSV", _
+            True, _
+            System.Text.Encoding.GetEncoding("shift_jis"))
+        'TextBox1.Textの内容を書き込む
+        sw.Write(Title)
+        '閉じる
+        sw.Close()
+        '読み込むファイルの名前
+        'ファイルを開く
+        'Dim fsQu As New System.IO.FileStream(FileName & ".CSV", _
+        '          System.IO.FileMode.Open, _
+        '          System.IO.FileAccess.Write, _
+        '          System.IO.FileShare.Read)
+        ' ''ファイルを読み込むバイト型配列を作成する
+        ''Dim bs(CInt(fsQu.Length - 1)) As Byte
+        ' ''ファイルの内容をすべて読み込む
+        ''fsQu.Read(bs, 0, bs.Length)
+        ' ''閉じる
+        'Dim bs(CInt(fsQu.Length - 1)) As Byte
+        'fsQu.Write(bs, 0, Title.Length)
+        'fsQu.Close()
+
+        'If Not System.IO.File.Exists(FileName + ".CSV") Then
+        '    My.Computer.FileSystem.WriteAllText(FileName + ".CSV", Title, True)
+        'End If
         If Not System.IO.File.Exists(FileName + ".BKF") Then
             My.Computer.FileSystem.WriteAllText(FileName + ".BKF", Title, True)
         End If
@@ -904,14 +934,6 @@
     End Sub
 
     Public Sub SaveDataQu()
-        '起動初回確認
-        'If SaveDataFirstFlagQu Then
-        '    CreateSaveFolderQu()
-        '    'MakeElementFolder()
-        '    MakeLotFile()
-        '    SaveDataFirstFlagQu = False
-        'End If
-        '現在時刻確認
         Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
         Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
         Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
@@ -921,26 +943,83 @@
         '保存先フォルダ確認＆生成
         Dim x1 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\"
         If Not System.IO.Directory.Exists(x1) Then
-            'MakeElementFolder()
             CreateSaveFolderQu()
         End If
         '保存ファイルの確認
-        'Dim x2 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
-        'If Not System.IO.File.Exists(x2) Then
-        MakeLotFile()
+        SaveFileNameQu = LotNo
+        Dim Title As String = ""
+        Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu
+        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
+        If Not System.IO.File.Exists(FileName + ".CSV") Then
+            Dim sw As New System.IO.StreamWriter(FileName & ".CSV", True, System.Text.Encoding.GetEncoding("shift_jis"))
+            sw.Write(Title)
+            sw.Close()
+        End If
+        If Not System.IO.File.Exists(FileName + ".BKF") Then
+            Dim sw As New System.IO.StreamWriter(FileName & ".BKF", True, System.Text.Encoding.GetEncoding("shift_jis"))
+            sw.Write(Title)
+            sw.Close()
+        End If
+        SaveDataFirstFlagQu = False
+        'TextBox1.Textの内容を書き込む
+        '閉じる
+        'sw.Close()
+        '読み込むファイルの名前
+        'ファイルを開く
+        'Dim fsQu As New System.IO.FileStream(FileName & ".CSV", _
+        '          System.IO.FileMode.Open, _
+        '          System.IO.FileAccess.Write, _
+        '          System.IO.FileShare.Read)
+        ' ''ファイルを読み込むバイト型配列を作成する
+        ''Dim bs(CInt(fsQu.Length - 1)) As Byte
+        ' ''ファイルの内容をすべて読み込む
+        ''fsQu.Read(bs, 0, bs.Length)
+        ' ''閉じる
+        'Dim bs(CInt(fsQu.Length - 1)) As Byte
+        'fsQu.Write(bs, 0, Title.Length)
+        'fsQu.Close()
+
+        'If Not System.IO.File.Exists(FileName + ".CSV") Then
+        '    My.Computer.FileSystem.WriteAllText(FileName + ".CSV", Title, True)
+        'End If
+
+
+
+
         'End If
         'データ保存
-        Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
+        'Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu
         Dim InputString As String = ""
         For i As Integer = 0 To 3
-            InputString = ""
+            'InputString = ""
             For j As Integer = 0 To 12
                 InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
             Next
             InputString = InputString & vbCrLf
-            My.Computer.FileSystem.WriteAllText(FileName, InputString, True)
-            My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".BKF", InputString, True)
         Next
+        'Try
+        '    Dim sw1 As New System.IO.StreamWriter(FileName + AddFc & ".CSV", True, System.Text.Encoding.GetEncoding("shift_jis"))
+        '    sw1.Write(InputString)
+        '    sw1.Close()
+        'Catch ex As Exception
+        '    Fc += 1
+        '    System.IO.File.Copy(FileName + AddFc & ".CSV", FileName & "_" & Trim(Str(Fc)) & ".CSV", True)
+        '    Dim sw1x As New System.IO.StreamWriter(FileName & "_" & Trim(Str(Fc)) & ".CSV", True, System.Text.Encoding.GetEncoding("shift_jis"))
+        '    sw1x.Write(InputString)
+        '    sw1x.Close()
+        '    AddFc = AddFc & "_" & Trim(Str(Fc))
+        '    'If MsgBox("File Error", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
+        '    '    Application.Exit()
+        '    'End If
+        'End Try
+        Dim sw1 As New System.IO.StreamWriter(FileName & ".CSV", True, System.Text.Encoding.GetEncoding("shift_jis"))
+        sw1.Write(InputString)
+        sw1.Close()
+        Dim sw2 As New System.IO.StreamWriter(FileName & ".BKF", True, System.Text.Encoding.GetEncoding("shift_jis"))
+        sw2.Write(InputString)
+        sw2.Close()
+
+
     End Sub
 
     'Public Sub SaveDataQu()
