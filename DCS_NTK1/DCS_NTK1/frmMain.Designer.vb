@@ -37,6 +37,9 @@ Partial Class frmMain
         Me.btnData = New System.Windows.Forms.Button()
         Me.timHeartBeat = New System.Windows.Forms.Timer(Me.components)
         Me.btnDebugMode = New System.Windows.Forms.Button()
+        Me.timDebug = New System.Windows.Forms.Timer(Me.components)
+        Me.Button3 = New System.Windows.Forms.Button()
+        Me.TextBox1 = New System.Windows.Forms.TextBox()
         CType(Me.dgvEq, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvQu, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -57,7 +60,6 @@ Partial Class frmMain
         'timScan
         '
         Me.timScan.Enabled = True
-        Me.timScan.Interval = 1000
         '
         'dgvEq
         '
@@ -160,11 +162,34 @@ Partial Class frmMain
         Me.btnDebugMode.UseVisualStyleBackColor = True
         Me.btnDebugMode.Visible = False
         '
+        'timDebug
+        '
+        Me.timDebug.Enabled = True
+        Me.timDebug.Interval = 200
+        '
+        'Button3
+        '
+        Me.Button3.Location = New System.Drawing.Point(488, 706)
+        Me.Button3.Name = "Button3"
+        Me.Button3.Size = New System.Drawing.Size(55, 20)
+        Me.Button3.TabIndex = 12
+        Me.Button3.Text = "End"
+        Me.Button3.UseVisualStyleBackColor = True
+        '
+        'TextBox1
+        '
+        Me.TextBox1.Location = New System.Drawing.Point(549, 707)
+        Me.TextBox1.Name = "TextBox1"
+        Me.TextBox1.Size = New System.Drawing.Size(76, 19)
+        Me.TextBox1.TabIndex = 13
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1008, 729)
+        Me.Controls.Add(Me.TextBox1)
+        Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.btnDebugMode)
         Me.Controls.Add(Me.btnData)
         Me.Controls.Add(Me.btnEnd)
@@ -198,4 +223,7 @@ Partial Class frmMain
     Friend WithEvents btnData As Button
     Friend WithEvents timHeartBeat As System.Windows.Forms.Timer
     Friend WithEvents btnDebugMode As System.Windows.Forms.Button
+    Friend WithEvents timDebug As System.Windows.Forms.Timer
+    Friend WithEvents Button3 As System.Windows.Forms.Button
+    Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
 End Class

@@ -48,7 +48,7 @@
     Public QuData(4, 70) As String        '取得_品質ﾃﾞｰﾀ
     Public StackData(13, 110) As String   '設備ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
     Public StackCounter As Integer = 0    '設備ﾁｬｰﾄ ｽﾀｯｸｶｳﾝﾀｰ
-    Public QuStackData(600, 12) As String '品質ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
+    Public QuStackData(3000, 12) As String '品質ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
     Public QuStackCounter As Integer = 0  '品質ﾁｬｰﾄ ｽﾀｯｸｶｳﾝﾀｰ
 
     Public EqStartedFlag As Boolean = False         '設備ﾃﾞｰﾀ集計開始ﾌﾗｸﾞ
@@ -78,6 +78,8 @@
     Private Sub initialize()
         'ﾃﾞﾊﾞｯｸﾞ用ｺﾝﾄﾛｰﾙ表示/非表示
         If DebugFlag Then
+            timDebug.Enabled = False
+            TextBox1.Visible = True
             TextBox2.Visible = True
             TextBox3.Visible = True
             TextBox4.Visible = True
@@ -86,7 +88,10 @@
             btnData.Visible = True
             Button1.Visible = True
             Button2.Visible = True
+            Button3.Visible = True
         Else
+            timDebug.Enabled = False
+            TextBox1.Visible = False
             TextBox2.Visible = False
             TextBox3.Visible = False
             TextBox4.Visible = False
@@ -95,6 +100,7 @@
             btnData.Visible = False
             Button1.Visible = False
             Button2.Visible = False
+            Button3.Visible = False
         End If
         '設備結果ﾃﾞｰﾀｼｰﾄ
         DGVClear(dgvEq)
@@ -522,8 +528,8 @@
 				QuStackData(QuStackCounter * 4 + i, j) = QuData(i, j)
 			Next j
 		Next i
-        If QuStackCounter > 100 Then
-            For i As Integer = 1 To 100
+        If QuStackCounter > 700 Then
+            For i As Integer = 1 To 700
                 For j As Integer = 0 To 12
                     QuStackData(i * 4 + 0, j) = QuStackData((i + 1) * 4 + 0, j)
                     QuStackData(i * 4 + 1, j) = QuStackData((i + 1) * 4 + 1, j)
@@ -531,7 +537,7 @@
                     QuStackData(i * 4 + 3, j) = QuStackData((i + 1) * 4 + 3, j)
                 Next
             Next
-            QuStackCounter = 100
+            QuStackCounter = 700
         End If
 	End Sub
 
@@ -1081,6 +1087,7 @@
     End Sub
 
     Private Sub btnData_Click(sender As Object, e As EventArgs) Handles btnData.Click
+        timDebug.Enabled = True
         DebugDataFlag = True
     End Sub
 
@@ -1107,4 +1114,16 @@
             Button2.Visible = False
         End If
     End Sub
+
+    Private Sub timDebug_Tick(sender As Object, e As EventArgs) Handles timDebug.Tick
+        DebugDataFlag = True
+        TextBox1.Text = Str(QuStackCounter)
+    End Sub
+
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        timDebug.Enabled = False
+        TextBox1.Text = Str(QuStackCounter)
+    End Sub
+
+  
 End Class
