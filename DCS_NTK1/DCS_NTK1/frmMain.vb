@@ -119,30 +119,36 @@
         dgvEq.Columns.Add("0", "品番")
         dgvEq.Columns.Add("1", "Lot")
         dgvEq.Columns.Add("2", "ｵﾍﾟﾚｰﾀ")
-        dgvEq.Columns.Add("3", "仕掛時間")
-        dgvEq.Columns.Add("4", "完了時間")
-        dgvEq.Columns.Add("5", "処理時間")
-        dgvEq.Columns.Add("6", "検知上")
-        dgvEq.Columns.Add("7", "検知横")
-        dgvEq.Columns.Add("8", "検知下")
-        dgvEq.Columns.Add("9", "全長①上")
-        dgvEq.Columns.Add("10", "全長①下")
-        dgvEq.Columns.Add("11", "全長②上")
-        dgvEq.Columns.Add("12", "全長②横")
-        dgvEq.Columns.Add("13", "全長②斜")
-        For i As Integer = 0 To 4
+        dgvEq.Columns.Add("3", "仕掛数")
+        dgvEq.Columns.Add("4", "OK数")
+        dgvEq.Columns.Add("5", "NG数")
+        dgvEq.Columns.Add("6", "仕掛時間")
+        dgvEq.Columns.Add("7", "完了時間")
+        dgvEq.Columns.Add("8", "処理時間")
+        dgvEq.Columns.Add("9", "検知上")
+        dgvEq.Columns.Add("10", "検知横")
+        dgvEq.Columns.Add("11", "検知下")
+        dgvEq.Columns.Add("12", "全長①上")
+        dgvEq.Columns.Add("13", "全長①下")
+        dgvEq.Columns.Add("14", "全長②上")
+        dgvEq.Columns.Add("15", "全長②横")
+        dgvEq.Columns.Add("16", "全長②斜")
+        For i As Integer = 0 To 7
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
             dgvEq.Columns(i).Width = 58
         Next i
-        For i As Integer = 5 To 13
+        For i As Integer = 8 To 16
             dgvEq.Columns(i).DefaultCellStyle = cstyle1
             dgvEq.Columns(i).Width = 62
         Next i
         dgvEq.Columns(0).Width = 70
         dgvEq.Columns(1).Width = 70
         dgvEq.Columns(2).Width = 65
-        dgvEq.Columns(3).Width = 110
-        dgvEq.Columns(4).Width = 110
+        dgvEq.Columns(3).Width = 70
+        dgvEq.Columns(4).Width = 60
+        dgvEq.Columns(5).Width = 60
+        dgvEq.Columns(6).Width = 110
+        dgvEq.Columns(7).Width = 110
         For i As Integer = 0 To 8
             dgvEq.Rows.Add("")
         Next
