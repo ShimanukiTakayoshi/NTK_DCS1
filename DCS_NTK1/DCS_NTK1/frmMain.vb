@@ -56,7 +56,7 @@
     Public SaveDataFirstFlag As Boolean = True      '設備ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True    '品質ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = False             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
+    Public DebugFlag As Boolean = True             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
     Public DebugSatrtFlag As Boolean = False        'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得開始ﾌﾗｸﾞ
     Public DebugEndFlag As Boolean = False          'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得完了ﾌﾗｸﾞ
     Public DebugDataFlag As Boolean = False         'ﾃﾞﾊﾞｯｸﾞ用品質ﾃﾞｰﾀ取得ﾌﾗｸﾞ
