@@ -114,7 +114,8 @@
         Dim cstyle1 As New DataGridViewCellStyle
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleRight
         Dim columnHeaderStyle As DataGridViewCellStyle = dgvEq.ColumnHeadersDefaultCellStyle
-        dgvEq.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+        dgvEq.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
+        dgvEq.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing
         columnHeaderStyle.Font = New Font("ＭＳ ゴシック", 8)
         dgvEq.Columns.Add("0", "品番")
         dgvEq.Columns.Add("1", "Lot")
@@ -144,14 +145,17 @@
         dgvEq.Columns(0).Width = 70
         dgvEq.Columns(1).Width = 70
         dgvEq.Columns(2).Width = 65
-        dgvEq.Columns(3).Width = 70
-        dgvEq.Columns(4).Width = 60
-        dgvEq.Columns(5).Width = 60
+        dgvEq.Columns(3).Width = 50
+        dgvEq.Columns(4).Width = 50
+        dgvEq.Columns(5).Width = 50
         dgvEq.Columns(6).Width = 110
         dgvEq.Columns(7).Width = 110
         For i As Integer = 0 To 8
             dgvEq.Rows.Add("")
         Next
+        For i As Integer = 0 To 16
+            dgvEq.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing
+        Next i
         dgvEq.RowHeadersVisible = False
         dgvEq.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvEq.CurrentCell = Nothing         '選択されているセルをなくす
@@ -164,6 +168,8 @@
         cstyle1.Alignment = DataGridViewContentAlignment.MiddleCenter
         Dim columnHeaderStyle2 As DataGridViewCellStyle = dgvQu.ColumnHeadersDefaultCellStyle
         dgvQu.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        dgvQu.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing
+        dgvQu.ColumnHeadersHeight = 30
         columnHeaderStyle2.Font = New Font("ＭＳ ゴシック", 8)
         dgvQu.Columns.Add("0", "日付")
         dgvQu.Columns.Add("1", "品番")
@@ -171,13 +177,14 @@
         dgvQu.Columns.Add("3", "ﾜｰｸNo")
         dgvQu.Columns.Add("4", "位置決め")
         dgvQu.Columns.Add("5", "検知抵抗")
-        dgvQu.Columns.Add("6", "結果")
+        dgvQu.Columns.Add("6", "結果  ")
         dgvQu.Columns.Add("7", "ﾘﾄﾗｲ")
         dgvQu.Columns.Add("8", "全長抵抗")
-        dgvQu.Columns.Add("9", "結果")
+        dgvQu.Columns.Add("9", "結果  ")
         dgvQu.Columns.Add("10", "ﾘﾄﾗｲ")
         dgvQu.Columns.Add("11", "測定ﾎﾟｼﾞｼｮﾝ")
         dgvQu.Columns.Add("12", "ｲﾝﾃﾞｯｸｽ治具No.")
+        dgvQu.Columns.Add("13", "NGﾊﾟﾚｯﾄ位置")
         For i As Integer = 0 To 12
             dgvQu.Columns(i).DefaultCellStyle = cstyle1
             dgvQu.Columns(i).Width = 63
@@ -189,10 +196,16 @@
         dgvQu.Columns(1).Width = 86
         dgvQu.Columns(2).Width = 87
         dgvQu.Columns(3).Width = 72
+        dgvQu.Columns(4).Width = 45
         dgvQu.Columns(5).Width = 93
+        dgvQu.Columns(6).Width = 45
+        dgvQu.Columns(7).Width = 50
         dgvQu.Columns(8).Width = 93
+        dgvQu.Columns(9).Width = 45
+        dgvQu.Columns(10).Width = 50
+        dgvQu.Columns(13).Width = 80
         dgvQu.RowHeadersVisible = False
-        dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+        'dgvQu.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvQu.CurrentCell = Nothing         '選択されているセルをなくす
         dgvQu.FirstDisplayedScrollingRowIndex = 0
     End Sub
