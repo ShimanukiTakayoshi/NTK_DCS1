@@ -18,6 +18,9 @@
     Public ElementNo As String = ""     '素子品番
     Public LotNo As String = ""         'ﾒｯｷﾛｯﾄNo.
     Public OperatorNo As String = ""    '作業者
+    Public ShikakariSuu As Integer = 0  '仕掛数
+    Public OkSuu As Integer = 0         'OK数
+    Public NgSuu As Integer = 0         'NG数
     Public StartTime As String = ""     '仕掛時間
     Public EndTime As String = ""       '完了時間
     Public ProcessTime As String = ""   '処理時間
@@ -41,14 +44,15 @@
     Public ReDet(4) As String           '検知抵抗測定値
     Public ReLen1(4) As String          '全長抵抗1測定値
     Public ReLen2(4) As String          '全長抵抗2測定値
+    Public NgPosi(4) As String          'NGﾊﾟﾚｯﾄ位置
     Public ReShift(24) As String        'ﾃﾞﾊﾞｯｸﾞﾓﾆﾀ用ｼﾌﾄﾃﾞｰﾀ
     'Public FormatData(100) As String
     Public EqChartRow As Integer = 8      '設備ﾁｬｰﾄ_ｽｸﾛｰﾙ制御用
     Public QuChartRow As Integer = 4      '品質ﾁｬｰﾄ_ｽｸﾛｰﾙ制御用
     Public QuData(4, 70) As String        '取得_品質ﾃﾞｰﾀ
-    Public StackData(13, 110) As String   '設備ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
+    Public StackData(16, 110) As String   '設備ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
     Public StackCounter As Integer = 0    '設備ﾁｬｰﾄ ｽﾀｯｸｶｳﾝﾀｰ
-    Public QuStackData(3000, 12) As String '品質ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
+    Public QuStackData(3000, 16) As String '品質ﾁｬｰﾄ 直近n=100個分ﾃﾞｰﾀ
     Public QuStackCounter As Integer = 0  '品質ﾁｬｰﾄ ｽﾀｯｸｶｳﾝﾀｰ
 
     Public EqStartedFlag As Boolean = False         '設備ﾃﾞｰﾀ集計開始ﾌﾗｸﾞ
@@ -185,7 +189,7 @@
         dgvQu.Columns.Add("11", "測定ﾎﾟｼﾞｼｮﾝ")
         dgvQu.Columns.Add("12", "ｲﾝﾃﾞｯｸｽ治具No.")
         dgvQu.Columns.Add("13", "NGﾊﾟﾚｯﾄ位置")
-        For i As Integer = 0 To 12
+        For i As Integer = 0 To 13
             dgvQu.Columns(i).DefaultCellStyle = cstyle1
             dgvQu.Columns(i).Width = 63
         Next i
@@ -261,6 +265,9 @@
             GetPlcData()
             'ElementNo = "Element123"
             'LotNo = "Lot123"
+            ShikakariSuu = 0
+            OkSuu = 0
+            NgSuu = 0
             EndTime = ""
             ProcessTime = ""
             For i As Integer = 0 To 7
@@ -417,6 +424,9 @@
             For i As Short = 0 To 3
                 ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
             Next
+            For i As Short = 0 To 3
+                NgPosi(i) = "R" & Trim(Str(CInt(Int(Rnd(1) * 6)) + 1)) & "-" & Trim(Str(CInt(Int(Rnd(1) * 200)) + 1))
+            Next
         End If
         If DebugFlag Then
             ElementNo = "Ele123y8"
@@ -518,6 +528,7 @@
             End Select
             QuData(i, 11) = CType(i + 1, String)
             QuData(i, 12) = CType(IndexNo, String)
+            QuData(i, 13) = NgPosi(i)
         Next i
 	End Sub
 
@@ -525,11 +536,14 @@
 		StackData(0, StackCounter) = ElementNo
 		StackData(1, StackCounter) = LotNo
 		StackData(2, StackCounter) = OperatorNo
-		StackData(3, StackCounter) = StartTime
-		StackData(4, StackCounter) = EndTime
-        StackData(5, StackCounter) = ProcessTime
-        For i As Integer = 6 To 13
-            StackData(i, StackCounter) = CStr(ProbeData(i - 6))
+        StackData(3, StackCounter) = CStr(ShikakariSuu)
+        StackData(4, StackCounter) = CStr(OkSuu)
+        StackData(5, StackCounter) = CStr(NgSuu)
+        StackData(6, StackCounter) = StartTime
+        StackData(7, StackCounter) = EndTime
+        StackData(8, StackCounter) = ProcessTime
+        For i As Integer = 9 To 16
+            StackData(i, StackCounter) = CStr(ProbeData(i - 9))
         Next
 		If StackCounter > 100 Then
 			For i As Integer = 1 To 100
@@ -543,13 +557,13 @@
 
 	Private Sub QuStackSet()
 		For i As Integer = 0 To 3
-			For j As Integer = 0 To 12
-				QuStackData(QuStackCounter * 4 + i, j) = QuData(i, j)
-			Next j
+            For j As Integer = 0 To 13
+                QuStackData(QuStackCounter * 4 + i, j) = QuData(i, j)
+            Next j
 		Next i
         If QuStackCounter > 700 Then
             For i As Integer = 1 To 700
-                For j As Integer = 0 To 12
+                For j As Integer = 0 To 13
                     QuStackData(i * 4 + 0, j) = QuStackData((i + 1) * 4 + 0, j)
                     QuStackData(i * 4 + 1, j) = QuStackData((i + 1) * 4 + 1, j)
                     QuStackData(i * 4 + 2, j) = QuStackData((i + 1) * 4 + 2, j)
@@ -584,7 +598,7 @@
             QuChartRow = QuStackCounter
         End If
         For i As Integer = 0 To QuStackCounter
-            For j As Integer = 0 To 12
+            For j As Integer = 0 To 13
                 dgvQu.Item(j, i * 4 + 0).Value = QuStackData((i + 1) * 4 + 0, j)
                 dgvQu.Item(j, i * 4 + 1).Value = QuStackData((i + 1) * 4 + 1, j)
                 dgvQu.Item(j, i * 4 + 2).Value = QuStackData((i + 1) * 4 + 2, j)
