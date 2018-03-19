@@ -580,7 +580,7 @@
             EqChartRow = StackCounter
         End If
         For i As Integer = 0 To StackCounter
-            For j As Integer = 0 To 13
+            For j As Integer = 0 To 16
                 dgvEq.Item(j, i).Value = StackData(j, i + 1)
             Next
         Next
@@ -931,7 +931,7 @@
         Dim b As String = dt.ToString
         SaveFileName = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
         Dim Title As String = ""
-        Title = "素子品番,ﾒｯｷﾛｯﾄ,作業者,仕掛時間,完了時間,処理時間,検知上,検知横,検知下,全1上,全1下,全2上,全2横,全2斜" + vbCrLf
+        Title = "素子品番,ﾒｯｷﾛｯﾄ,作業者,仕掛数,OK数,NG数,仕掛時間,完了時間,処理時間,検知上,検知横,検知下,全1上,全1下,全2上,全2横,全2斜" + vbCrLf
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".CSV", Title, True)
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".BKF", Title, True)
     End Sub
@@ -942,7 +942,7 @@
         Dim b As String = dt.ToString
         SaveFileNameQu = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
         Dim Title As String = ""
-        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
+        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No,NGﾊﾟﾚｯﾄ位置" + vbCrLf
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolder + "\" + SaveFileNameQu + ".CSV", Title, True)
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolder + "\" + SaveFileNameQu + ".BKF", Title, True)
     End Sub
@@ -964,7 +964,7 @@
         End If
         'データ保存
         Dim InputString As String = ""
-        For i As Integer = 0 To 13
+        For i As Integer = 0 To 16
             InputString = InputString + StackData(i, StackCounter) + ","
         Next
         InputString = InputString & vbCrLf
@@ -988,7 +988,7 @@
         SaveFileNameQu = LotNo
         Dim Title As String = ""
         Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu
-        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
+        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No,NGﾊﾟﾚｯﾄ位置" + vbCrLf
         If Not System.IO.File.Exists(FileName + ".CSV") Then
             Dim sw As New System.IO.StreamWriter(FileName & ".CSV", True, System.Text.Encoding.GetEncoding("shift_jis"))
             sw.Write(Title)
@@ -1031,7 +1031,7 @@
         Dim InputString As String = ""
         For i As Integer = 0 To 3
             'InputString = ""
-            For j As Integer = 0 To 12
+            For j As Integer = 0 To 13
                 InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
             Next
             InputString = InputString & vbCrLf
