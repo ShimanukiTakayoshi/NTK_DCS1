@@ -9,9 +9,10 @@
     Public SaveTimeH As String = "00"       'データ保存ファイル切替時間(H)
     Public SaveTimeM As String = "00"       'データ保存ファイル切替時間(M)
     'PLC通信アドレス設定
-    Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
-	Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
     Public QuTriggerAdress As Long = 12300      '品質ﾃﾞｰﾀﾄﾘｶﾞ
+    Public StartTriggerAdress As Long = 12301   'ｽﾀｰﾄﾄﾘｶﾞ
+    Public EndTriggerAdress As Long = 12302     'ｴﾝﾄﾞﾄﾘｶﾞ
+    Public RedBoxModeAddress As Long = 12303    '赤箱ﾓｰﾄﾞ
     Public HeartBeatAdress As Long = 12310      '起動中ﾊﾟﾙｽ出力ｱﾄﾞﾚｽ
     Public HeartBeat As Boolean = False         '起動中ﾊﾟﾙｽ
 
@@ -44,7 +45,7 @@
     Public ReDet(4) As String           '検知抵抗測定値
     Public ReLen1(4) As String          '全長抵抗1測定値
     Public ReLen2(4) As String          '全長抵抗2測定値
-    Public NgPosi(4) As String          'NGﾊﾟﾚｯﾄ位置
+    Public NgCounter As Integer = 0     'NGｶｳﾝﾀ
     Public ReShift(24) As String        'ﾃﾞﾊﾞｯｸﾞﾓﾆﾀ用ｼﾌﾄﾃﾞｰﾀ
     'Public FormatData(100) As String
     Public EqChartRow As Integer = 8      '設備ﾁｬｰﾄ_ｽｸﾛｰﾙ制御用
@@ -261,6 +262,7 @@
             StartTime = Trim(CStr(Now))
             dtNow = DateTime.Now
             StartTimeValue = TimeValue(dtNow)
+            NgCounter = 0
             StackCounter += 1
             GetPlcData()
             'ElementNo = "Element123"
@@ -424,9 +426,6 @@
             For i As Short = 0 To 3
                 ReLen2(i) = CType(CLng((Int(Rnd(1) * 100000))), String)
             Next
-            For i As Short = 0 To 3
-                NgPosi(i) = "R" & Trim(Str(CInt(Int(Rnd(1) * 6)) + 1)) & "-" & Trim(Str(CInt(Int(Rnd(1) * 200)) + 1))
-            Next
         End If
         If DebugFlag Then
             ElementNo = "Ele123y8"
@@ -470,7 +469,8 @@
 		'全長抵抗１or２選択
 		Dim ReLen(4) As String
 		Dim JudgeLen(4) As Integer
-		Dim RetryLen(4) As Integer
+        Dim RetryLen(4) As Integer
+        Dim NgFlag As Boolean = False
 		Dim a0 As Long = CLng(Val(ReLen1(0)) + Val(ReLen1(1)) + Val(ReLen1(2)) + Val(ReLen1(3)))
 		If a0 <> 0 Then
 			ReLen(0) = ReLen1(0) : ReLen(1) = ReLen1(1) : ReLen(2) = ReLen1(2) : ReLen(3) = ReLen1(3)
@@ -481,23 +481,26 @@
 			JudgeLen(0) = JudgeLen2(0) : JudgeLen(1) = JudgeLen2(1) : JudgeLen(2) = JudgeLen2(2) : JudgeLen(3) = JudgeLen2(3)
 			RetryLen(0) = RetryLen2(0) : RetryLen(1) = RetryLen2(1) : RetryLen(2) = RetryLen2(2) : RetryLen(3) = RetryLen2(3)
 		End If
-		For i As Integer = 0 To 3
-			QuData(i, 0) = CType(Now, String)
-			QuData(i, 1) = ElementNo
-			QuData(i, 2) = LotNo
-			QuData(i, 3) = s0 & "-" & CType(SayaPosi(i), String)
-			Select Case JudgeLead(i)
-				Case 0
-					QuData(i, 4) = "NG"
-				Case 1
-					QuData(i, 4) = "OK"
-				Case Else
-					QuData(i, 4) = "--"
-			End Select
+        For i As Integer = 0 To 3
+            NgFlag = False
+            QuData(i, 0) = CType(Now, String)
+            QuData(i, 1) = ElementNo
+            QuData(i, 2) = LotNo
+            QuData(i, 3) = s0 & "-" & CType(SayaPosi(i), String)
+            Select Case JudgeLead(i)
+                Case 0
+                    QuData(i, 4) = "NG"
+                    NgFlag = True
+                Case 1
+                    QuData(i, 4) = "OK"
+                Case Else
+                    QuData(i, 4) = "--"
+            End Select
             QuData(i, 5) = ChangeData(ReDet(i))
             Select Case JudgeDet(i)
                 Case 0
                     QuData(i, 6) = "NG"
+                    NgFlag = True
                 Case 1
                     QuData(i, 6) = "OK"
                 Case Else
@@ -514,6 +517,7 @@
             Select Case JudgeLen(i)
                 Case 0
                     QuData(i, 9) = "NG"
+                    NgFlag = True
                 Case 1
                     QuData(i, 9) = "OK"
                 Case Else
@@ -528,7 +532,12 @@
             End Select
             QuData(i, 11) = CType(i + 1, String)
             QuData(i, 12) = CType(IndexNo, String)
-            QuData(i, 13) = NgPosi(i)
+            If NgFlag Then
+                NgCounter += 1
+                QuData(i, 13) = "R" & Trim(Str(Int((NgCounter - 1) / 200) + 1)) & "-" & Trim(Str(NgCounter - (Int((NgCounter - 1) / 200) * 200)))
+            Else
+                QuData(i, 13) = ""
+            End If
         Next i
 	End Sub
 
