@@ -19,9 +19,6 @@
     Public ElementNo As String = ""     '素子品番
     Public LotNo As String = ""         'ﾒｯｷﾛｯﾄNo.
     Public OperatorNo As String = ""    '作業者
-    Public ShikakariSuu As Integer = 0  '仕掛数
-    Public OkSuu As Integer = 0         'OK数
-    Public NgSuu As Integer = 0         'NG数
     Public StartTime As String = ""     '仕掛時間
     Public EndTime As String = ""       '完了時間
     Public ProcessTime As String = ""   '処理時間
@@ -29,6 +26,10 @@
     Public StartTimeValue As Long = 0   '開始時間(秒数)
     Public EndTimeValue As Long = 0     '終了時間(秒数)
     Public dtNow As DateTime            '現在時刻取得用
+
+    Public TotalInCounter As Integer = 0     'Lot毎投入ｶｳﾝﾀ
+    Public TotalOkCounter As Integer = 0     'Lot毎OKｶｳﾝﾀ
+    Public TotalNgCounter As Integer = 0     'Lot毎NGｶｳﾝﾀ
 
     Public SayaNo As Integer = 0        'サヤ番号
     Public SayaPosi(4) As Integer       'サヤ上ﾜｰｸ位置番号
@@ -263,13 +264,13 @@
             dtNow = DateTime.Now
             StartTimeValue = TimeValue(dtNow)
             NgCounter = 0
+            TotalInCounter = 0
+            TotalOkCounter = 0
+            TotalNgCounter = 0
             StackCounter += 1
             GetPlcData()
             'ElementNo = "Element123"
             'LotNo = "Lot123"
-            ShikakariSuu = 0
-            OkSuu = 0
-            NgSuu = 0
             EndTime = ""
             ProcessTime = ""
             For i As Integer = 0 To 7
@@ -471,6 +472,7 @@
 		Dim JudgeLen(4) As Integer
         Dim RetryLen(4) As Integer
         Dim NgFlag As Boolean = False
+        Dim OkFlag As Boolean = False
 		Dim a0 As Long = CLng(Val(ReLen1(0)) + Val(ReLen1(1)) + Val(ReLen1(2)) + Val(ReLen1(3)))
 		If a0 <> 0 Then
 			ReLen(0) = ReLen1(0) : ReLen(1) = ReLen1(1) : ReLen(2) = ReLen1(2) : ReLen(3) = ReLen1(3)
@@ -483,6 +485,7 @@
 		End If
         For i As Integer = 0 To 3
             NgFlag = False
+            OkFlag = False
             QuData(i, 0) = CType(Now, String)
             QuData(i, 1) = ElementNo
             QuData(i, 2) = LotNo
@@ -493,6 +496,7 @@
                     NgFlag = True
                 Case 1
                     QuData(i, 4) = "OK"
+                    OkFlag = True
                 Case Else
                     QuData(i, 4) = "--"
             End Select
@@ -503,6 +507,7 @@
                     NgFlag = True
                 Case 1
                     QuData(i, 6) = "OK"
+                    OkFlag = True
                 Case Else
                     QuData(i, 6) = "--"
                     QuData(i, 5) = "未測定"
@@ -520,6 +525,7 @@
                     NgFlag = True
                 Case 1
                     QuData(i, 9) = "OK"
+                    OkFlag = True
                 Case Else
                     QuData(i, 9) = "--"
                     QuData(i, 8) = "未測定"
@@ -534,9 +540,15 @@
             QuData(i, 12) = CType(IndexNo, String)
             If NgFlag Then
                 NgCounter += 1
+                TotalNgCounter += 1
+                TotalInCounter += 1
                 QuData(i, 13) = "R" & Trim(Str(Int((NgCounter - 1) / 200) + 1)) & "-" & Trim(Str(NgCounter - (Int((NgCounter - 1) / 200) * 200)))
             Else
                 QuData(i, 13) = ""
+            End If
+            If Not NgFlag And OkFlag Then
+                TotalOkCounter += 1
+                TotalInCounter += 1
             End If
         Next i
 	End Sub
@@ -545,9 +557,9 @@
 		StackData(0, StackCounter) = ElementNo
 		StackData(1, StackCounter) = LotNo
 		StackData(2, StackCounter) = OperatorNo
-        StackData(3, StackCounter) = CStr(ShikakariSuu)
-        StackData(4, StackCounter) = CStr(OkSuu)
-        StackData(5, StackCounter) = CStr(NgSuu)
+        StackData(3, StackCounter) = CStr(TotalInCounter)
+        StackData(4, StackCounter) = CStr(TotalOkCounter)
+        StackData(5, StackCounter) = CStr(TotalNgCounter)
         StackData(6, StackCounter) = StartTime
         StackData(7, StackCounter) = EndTime
         StackData(8, StackCounter) = ProcessTime
