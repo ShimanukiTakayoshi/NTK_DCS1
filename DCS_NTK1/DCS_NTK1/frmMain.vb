@@ -31,6 +31,10 @@
     Public TotalOkCounter As Integer = 0     'Lot毎OKｶｳﾝﾀ
     Public TotalNgCounter As Integer = 0     'Lot毎NGｶｳﾝﾀ
 
+    Public InCo As Long = 0     'Lot毎投入ｶｳﾝﾀ
+    Public OkCo As Long = 0     'Lot毎OKｶｳﾝﾀ
+    Public NgCo As Long = 0     'Lot毎NGｶｳﾝﾀ
+
     Public SayaNo As Integer = 0        'サヤ番号
     Public SayaPosi(4) As Integer       'サヤ上ﾜｰｸ位置番号
     Public IndexNo As Integer = 0       'ｲﾝﾃﾞｯｸｽ ｽﾃｰｼｮﾝ番号
@@ -333,6 +337,9 @@
             For i As Short = 0 To 7
                 ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 16)) & Hex(TmpInt(i * 2 + 15))))
             Next i
+            InCo = CLng(Val(Hex(TmpInt(42)) & Hex(TmpInt(41))))
+            OkCo = CLng(Val(Hex(TmpInt(44)) & Hex(TmpInt(43))))
+            NgCo = CLng(Val(Hex(TmpInt(46)) & Hex(TmpInt(45))))
             '品質ﾃﾞｰﾀ読込
             SayaNo = CInt(TmpInt(100))
             If Not SayaPosiDebugFlag Then
@@ -557,9 +564,12 @@
 		StackData(0, StackCounter) = ElementNo
 		StackData(1, StackCounter) = LotNo
 		StackData(2, StackCounter) = OperatorNo
-        StackData(3, StackCounter) = CStr(TotalInCounter)
-        StackData(4, StackCounter) = CStr(TotalOkCounter)
-        StackData(5, StackCounter) = CStr(TotalNgCounter)
+        'StackData(3, StackCounter) = CStr(TotalInCounter)
+        'StackData(4, StackCounter) = CStr(TotalOkCounter)
+        'StackData(5, StackCounter) = CStr(TotalNgCounter)
+        StackData(3, StackCounter) = CStr(InCo)
+        StackData(4, StackCounter) = CStr(OkCo)
+        StackData(5, StackCounter) = CStr(NgCo)
         StackData(6, StackCounter) = StartTime
         StackData(7, StackCounter) = EndTime
         StackData(8, StackCounter) = ProcessTime
