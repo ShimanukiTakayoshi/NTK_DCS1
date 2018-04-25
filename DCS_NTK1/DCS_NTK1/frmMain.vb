@@ -244,25 +244,6 @@
         If PlcRead(StartTriggerAdress) <> 0 Or DebugSatrtFlag Then
             DebugSatrtFlag = False
             PlcWrite(StartTriggerAdress, 0)
-            'If Not EqStartedFlag Then
-            '    EqStartedFlag = True
-            '    StartTime = Trim(CStr(Now))
-            '    dtNow = DateTime.Now
-            '    StartTimeValue = TimeValue(dtNow)
-            '    StackCounter += 1
-            '    GetPlcData()
-            '    'ElementNo = "Element123"
-            '    'LotNo = "Lot123"
-            '    EndTime = ""
-            '    ProcessTime = ""
-            '    For i As Integer = 0 To 7
-            '        ProbeData(i) = 0
-            '    Next
-            '    StackSet()
-            '    DrawChartSetubi()
-            '    MakeElementFolder()
-            '    'MakeLotFile()
-            'End If
             EqStartedFlag = True
             StartTime = Trim(CStr(Now))
             dtNow = DateTime.Now
@@ -273,8 +254,6 @@
             TotalNgCounter = 0
             StackCounter += 1
             GetPlcData()
-            'ElementNo = "Element123"
-            'LotNo = "Lot123"
             EndTime = ""
             ProcessTime = ""
             For i As Integer = 0 To 7
@@ -283,7 +262,6 @@
             StackSet()
             DrawChartSetubi()
             MakeElementFolder()
-            'MakeLotFile()
         End If
         'エンドトリガ監視
         If PlcRead(EndTriggerAdress) <> 0 Or DebugEndFlag Then
