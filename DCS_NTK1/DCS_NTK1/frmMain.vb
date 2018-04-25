@@ -5,7 +5,6 @@
     Public SaveSubFolderQu As String = ""     'CSVファイル保存先サブホルダ
     Public SaveFileName As String = ""      'CSVファイル名
     Public SaveFileNameQu As String = ""    'CSVファイル名
-    Public Gouki As Integer = 1             '号機番号
     Public SaveTimeH As String = "00"       'データ保存ファイル切替時間(H)
     Public SaveTimeM As String = "00"       'データ保存ファイル切替時間(M)
     'PLC通信アドレス設定
@@ -26,10 +25,6 @@
     Public StartTimeValue As Long = 0   '開始時間(秒数)
     Public EndTimeValue As Long = 0     '終了時間(秒数)
     Public dtNow As DateTime            '現在時刻取得用
-
-    Public TotalInCounter As Integer = 0     'Lot毎投入ｶｳﾝﾀ
-    Public TotalOkCounter As Integer = 0     'Lot毎OKｶｳﾝﾀ
-    Public TotalNgCounter As Integer = 0     'Lot毎NGｶｳﾝﾀ
 
     Public InCo As Long = 0     'Lot毎投入ｶｳﾝﾀ
     Public OkCo As Long = 0     'Lot毎OKｶｳﾝﾀ
@@ -73,8 +68,6 @@
     Public SayaPosiDebugFlag As Boolean = True      'ｻﾔﾎﾟｼﾞｼｮﾝ生成ﾌﾗｸﾞ(もともとﾃﾞﾊﾞｯｸﾞ用だったが、通常使用となった。)
     Public TmpLong(20) As Long                      '汎用
     Public TmpInt(299) As Long                      '汎用
-    Public Fc As Integer = 0
-    Public AddFc As String = ""
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         '二重起動防止
@@ -249,9 +242,6 @@
             dtNow = DateTime.Now
             StartTimeValue = TimeValue(dtNow)
             NgCounter = 0
-            TotalInCounter = 0
-            TotalOkCounter = 0
-            TotalNgCounter = 0
             StackCounter += 1
             GetPlcData()
             EndTime = ""
@@ -525,15 +515,11 @@
             QuData(i, 12) = CType(IndexNo, String)
             If NgFlag Then
                 NgCounter += 1
-                TotalNgCounter += 1
-                TotalInCounter += 1
                 QuData(i, 13) = "R" & Trim(Str(Int((NgCounter - 1) / 200) + 1)) & "-" & Trim(Str(NgCounter - (Int((NgCounter - 1) / 200) * 200)))
             Else
                 QuData(i, 13) = ""
             End If
             If Not NgFlag And OkFlag Then
-                TotalOkCounter += 1
-                TotalInCounter += 1
             End If
         Next i
 	End Sub
@@ -542,9 +528,6 @@
 		StackData(0, StackCounter) = ElementNo
 		StackData(1, StackCounter) = LotNo
 		StackData(2, StackCounter) = OperatorNo
-        'StackData(3, StackCounter) = CStr(TotalInCounter)
-        'StackData(4, StackCounter) = CStr(TotalOkCounter)
-        'StackData(5, StackCounter) = CStr(TotalNgCounter)
         StackData(3, StackCounter) = CStr(InCo)
         StackData(4, StackCounter) = CStr(OkCo)
         StackData(5, StackCounter) = CStr(NgCo)
@@ -663,58 +646,6 @@
                 timScan.Enabled = True
                 timHeartBeat.Enabled = True
             End Try
-        End If
-    End Sub
-
-    Public Function PlcReadStrings(address As Long, length As Integer) As String
-        '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
-        'シーケンサーのDMメモリーより「address」にて指定したアドレスの内容を「length」文字数分のアスキーデータを読み込む
-        '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
-        Dim tmp1(99) As Integer
-        Dim tmp2(99) As String
-        PlcReadStrings = ""
-        If Not DebugFlag Then
-            Try
-                tmp1 = SysmacCJ.ReadMemoryWordInteger(OMRON.Compolet.SYSMAC.SysmacCJ.MemoryTypes.DM, address, length, OMRON.Compolet.SYSMAC.SysmacCJ.DataTypes.BIN)
-                For i As Integer = 0 To length
-                    tmp2(i) = Hex(tmp1(i))
-                    PlcReadStrings += HexAsc(tmp2(i))
-                Next
-            Catch ex As Exception
-                timScan.Enabled = False
-                If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
-                    Application.Exit()
-                End If
-                timScan.Enabled = True
-                PlcReadStrings = ""
-            End Try
-        Else
-            PlcReadStrings = ""
-        End If
-    End Function
-
-    Public Sub PlcReadDWord(address As Long, length As Integer)
-        '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
-        'シーケンサーのDMメモリーより「address」にて指定したアドレスの内容を「length」ダブルワード分の整数を読み込む
-        '－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
-        Dim tmp1(99) As Long
-        If Not DebugFlag Then
-            Try
-                tmp1 = SysmacCJ.ReadMemoryDwordLong(OMRON.Compolet.SYSMAC.SysmacCJ.MemoryTypes.DM, address, length, OMRON.Compolet.SYSMAC.SysmacCJ.DataTypes.BIN)
-                For i As Integer = 0 To length
-                    TmpLong(i) = tmp1(i)
-                Next
-            Catch ex As Exception
-                timScan.Enabled = False
-                If MsgBox("PLC－PC通信ｴﾗｰ" & vbCr & "DCSを終了してよいですか？", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
-                    Application.Exit()
-                End If
-                timScan.Enabled = True
-            End Try
-        Else
-            For i As Integer = 0 To length
-                TmpLong(i) = 99999999
-            Next i
         End If
     End Sub
 
@@ -864,51 +795,6 @@
         di.Create()
     End Sub
 
-    Public Sub MakeLotFile()
-        '保存ファイル生成
-        SaveFileNameQu = LotNo
-        Dim Title As String = ""
-        Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu
-        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No" + vbCrLf
-        'If Not System.IO.File.Exists(FileName + ".CSV") Then
-        '    My.Computer.FileSystem.WriteAllText(FileName + ".CSV", Title, True)
-        'End If
-
-        'Shift JISで書き込む
-        '書き込むファイルが既に存在している場合は、上書きする
-        Dim sw As New System.IO.StreamWriter(FileName & ".CSV", _
-            True, _
-            System.Text.Encoding.GetEncoding("shift_jis"))
-        'TextBox1.Textの内容を書き込む
-        sw.Write(Title)
-        '閉じる
-        sw.Close()
-        '読み込むファイルの名前
-        'ファイルを開く
-        'Dim fsQu As New System.IO.FileStream(FileName & ".CSV", _
-        '          System.IO.FileMode.Open, _
-        '          System.IO.FileAccess.Write, _
-        '          System.IO.FileShare.Read)
-        ' ''ファイルを読み込むバイト型配列を作成する
-        ''Dim bs(CInt(fsQu.Length - 1)) As Byte
-        ' ''ファイルの内容をすべて読み込む
-        ''fsQu.Read(bs, 0, bs.Length)
-        ' ''閉じる
-        'Dim bs(CInt(fsQu.Length - 1)) As Byte
-        'fsQu.Write(bs, 0, Title.Length)
-        'fsQu.Close()
-
-        'If Not System.IO.File.Exists(FileName + ".CSV") Then
-        '    My.Computer.FileSystem.WriteAllText(FileName + ".CSV", Title, True)
-        'End If
-        If Not System.IO.File.Exists(FileName + ".BKF") Then
-            My.Computer.FileSystem.WriteAllText(FileName + ".BKF", Title, True)
-        End If
-        SaveDataFirstFlagQu = False
-        'データ保存
-
-    End Sub
-
     Public Sub CreateSaveFolder()
         '保存先フォルダ生成
         Dim dt As DateTime = DateTime.Now
@@ -943,17 +829,6 @@
         Title = "素子品番,ﾒｯｷﾛｯﾄ,作業者,仕掛数,OK数,NG数,仕掛時間,完了時間,処理時間,検知上,検知横,検知下,全1上,全1下,全2上,全2横,全2斜" + vbCrLf
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".CSV", Title, True)
         My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + SaveSubFolder + "\" + "setubi_" + SaveFileName + ".BKF", Title, True)
-    End Sub
-
-    Public Sub CreateSaveFileNameQu()
-        '保存ファイル生成
-        Dim dt As DateTime = DateTime.Now
-        Dim b As String = dt.ToString
-        SaveFileNameQu = Strings.Left(Trim(b), 4) + Strings.Mid(Trim(b), 6, 2) + Strings.Mid(Trim(b), 9, 2)
-        Dim Title As String = ""
-        Title = "日付,素子品番,ﾛｯﾄNo,ﾜｰｸNo,位置決め,検知抵抗,結果,ﾘﾄﾗｲ,全長抵抗,結果,ﾘﾄﾗｲ,測定ﾎﾟｼﾞｼｮﾝ,ｲﾝﾃﾞｯｸｽ治具No,NGﾊﾟﾚｯﾄ位置" + vbCrLf
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolder + "\" + SaveFileNameQu + ".CSV", Title, True)
-        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolder + "\" + SaveFileNameQu + ".BKF", Title, True)
     End Sub
 
     Public Sub SaveData()
@@ -1009,32 +884,6 @@
             sw.Close()
         End If
         SaveDataFirstFlagQu = False
-        'TextBox1.Textの内容を書き込む
-        '閉じる
-        'sw.Close()
-        '読み込むファイルの名前
-        'ファイルを開く
-        'Dim fsQu As New System.IO.FileStream(FileName & ".CSV", _
-        '          System.IO.FileMode.Open, _
-        '          System.IO.FileAccess.Write, _
-        '          System.IO.FileShare.Read)
-        ' ''ファイルを読み込むバイト型配列を作成する
-        ''Dim bs(CInt(fsQu.Length - 1)) As Byte
-        ' ''ファイルの内容をすべて読み込む
-        ''fsQu.Read(bs, 0, bs.Length)
-        ' ''閉じる
-        'Dim bs(CInt(fsQu.Length - 1)) As Byte
-        'fsQu.Write(bs, 0, Title.Length)
-        'fsQu.Close()
-
-        'If Not System.IO.File.Exists(FileName + ".CSV") Then
-        '    My.Computer.FileSystem.WriteAllText(FileName + ".CSV", Title, True)
-        'End If
-
-
-
-
-        'End If
         'データ保存
         'Dim FileName As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu
         Dim InputString As String = ""
@@ -1045,70 +894,13 @@
             Next
             InputString = InputString & vbCrLf
         Next
-        'Try
-        '    Dim sw1 As New System.IO.StreamWriter(FileName + AddFc & ".CSV", True, System.Text.Encoding.GetEncoding("shift_jis"))
-        '    sw1.Write(InputString)
-        '    sw1.Close()
-        'Catch ex As Exception
-        '    Fc += 1
-        '    System.IO.File.Copy(FileName + AddFc & ".CSV", FileName & "_" & Trim(Str(Fc)) & ".CSV", True)
-        '    Dim sw1x As New System.IO.StreamWriter(FileName & "_" & Trim(Str(Fc)) & ".CSV", True, System.Text.Encoding.GetEncoding("shift_jis"))
-        '    sw1x.Write(InputString)
-        '    sw1x.Close()
-        '    AddFc = AddFc & "_" & Trim(Str(Fc))
-        '    'If MsgBox("File Error", CType(vbOKCancel + vbExclamation, MsgBoxStyle)) = vbOK Then
-        '    '    Application.Exit()
-        '    'End If
-        'End Try
         Dim sw1 As New System.IO.StreamWriter(FileName & ".CSV", True, System.Text.Encoding.GetEncoding("shift_jis"))
         sw1.Write(InputString)
         sw1.Close()
         Dim sw2 As New System.IO.StreamWriter(FileName & ".BKF", True, System.Text.Encoding.GetEncoding("shift_jis"))
         sw2.Write(InputString)
         sw2.Close()
-
-
     End Sub
-
-    'Public Sub SaveDataQu()
-    '    '起動初回確認
-    '    'If SaveDataFirstFlagQu Then
-    '    '    CreateSaveFolderQu()
-    '    '    'MakeElementFolder()
-    '    '    MakeLotFile()
-    '    '    SaveDataFirstFlagQu = False
-    '    'End If
-    '    '現在時刻確認
-    '    Dim NowYearMonth As String = Replace(Strings.Left(CStr(Now), 7), "/", "")
-    '    Dim NowDate As String = Replace(Strings.Left(CStr(Now), 10), "/", "")
-    '    Dim NowTime As String = Replace(Strings.Mid(CStr(Now), 12, 5), ":", "")
-    '    If NowDate <> SaveSubFolderQu And Val(NowTime) >= Val(SaveTimeH + SaveTimeM) Then
-    '        CreateSaveFolderQu()
-    '    End If
-    '    '保存先フォルダ確認＆生成
-    '    Dim x1 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\"
-    '    If Not System.IO.Directory.Exists(x1) Then
-    '        'MakeElementFolder()
-    '        CreateSaveFolderQu()
-    '    End If
-    '    '保存ファイルの確認
-    '    Dim x2 As String = SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV"
-    '    If Not System.IO.File.Exists(x2) Then
-    '        MakeLotFile()
-    '    End If
-    '    'データ保存
-    '    Dim InputString As String = ""
-    '    For i As Integer = 0 To 3
-    '        InputString = ""
-    '        For j As Integer = 0 To 12
-    '            InputString = InputString + QuStackData(QuStackCounter * 4 + i, j) + ","
-    '        Next
-    '        InputString = InputString & vbCrLf
-    '        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".CSV", InputString, True)
-    '        My.Computer.FileSystem.WriteAllText(SaveFolder + "\" + ElementNo + "\" + SaveSubFolderQu + "\" + SaveFileNameQu + ".BKF", InputString, True)
-    '    Next
-    'End Sub
-
 
     'ﾃﾞﾊﾞｯｸﾞ用
 
