@@ -42,6 +42,7 @@
     Public RetryLen1(4) As Integer      '全長抵抗1ﾘﾄﾗｲ有無
     Public RetryLen2(4) As Integer      '全長抵抗2ﾘﾄﾗｲ有無
     Public Zaika(4) As Integer          '在荷有無
+    Public ZaikaNG(4) As Integer        'NG取出STの在荷
     Public ReDet(4) As String           '検知抵抗測定値
     Public ReLen1(4) As String          '全長抵抗1測定値
     Public ReLen2(4) As String          '全長抵抗2測定値
@@ -61,7 +62,7 @@
     Public SaveDataFirstFlag As Boolean = True      '設備ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
     Public SaveDataFirstFlagQu As Boolean = True    '品質ﾃﾞｰﾀ 初回ﾃﾞｰﾀ保存ﾌﾗｸﾞ
 
-    Public DebugFlag As Boolean = True             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
+    Public DebugFlag As Boolean = False             'ﾃﾞﾊﾞｯｸﾞﾌﾗｸﾞ
     Public DebugSatrtFlag As Boolean = False        'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得開始ﾌﾗｸﾞ
     Public DebugEndFlag As Boolean = False          'ﾃﾞﾊﾞｯｸﾞ用設備ﾃﾞｰﾀ取得完了ﾌﾗｸﾞ
     Public DebugDataFlag As Boolean = False         'ﾃﾞﾊﾞｯｸﾞ用品質ﾃﾞｰﾀ取得ﾌﾗｸﾞ
@@ -302,7 +303,7 @@
             ElementNo = HexAsc(Hex(TmpInt(0))) & HexAsc(Hex(TmpInt(1))) & HexAsc(Hex(TmpInt(2))) & HexAsc(Hex(TmpInt(3))) & HexAsc(Hex(TmpInt(4)))
             LotNo = HexAsc(Hex(TmpInt(5))) & HexAsc(Hex(TmpInt(6))) & HexAsc(Hex(TmpInt(7))) & HexAsc(Hex(TmpInt(8))) & HexAsc(Hex(TmpInt(9)))
             OperatorNo = HexAsc(Hex(TmpInt(10))) & HexAsc(Hex(TmpInt(11))) & HexAsc(Hex(TmpInt(12))) & HexAsc(Hex(TmpInt(13))) & HexAsc(Hex(TmpInt(14)))
-            For i As Short = 0 To 7
+            For i As Short = 0 To 8
                 ProbeData(i) = CLng(Val(Hex(TmpInt(i * 2 + 16)) & Hex(TmpInt(i * 2 + 15))))
             Next i
             InCo = CLng(Val(Hex(TmpInt(42)) & Hex(TmpInt(41))))
@@ -310,15 +311,12 @@
             NgCo = CLng(Val(Hex(TmpInt(46)) & Hex(TmpInt(45))))
             '品質ﾃﾞｰﾀ読込
             SayaNo = CInt(TmpInt(100))
-            If Not SayaPosiDebugFlag Then
-                For i As Short = 0 To 3
-                    SayaPosi(i) = CInt(TmpInt(101 + i))
-                Next
-            Else
-                For i As Short = 0 To 3
-                    SayaPosi(i) = CInt(TmpInt(220 + i))
-                Next
-            End If
+            For i As Short = 0 To 3
+                ZaikaNG(i) = CInt(TmpInt(101 + i))
+            Next
+            For i As Short = 0 To 3
+                SayaPosi(i) = CInt(TmpInt(220 + i))
+            Next
             IndexNo = CInt(TmpInt(105))
             For i As Short = 0 To 3
                 JudgeLead(i) = CInt(TmpInt(106 + i))
@@ -464,6 +462,8 @@
             QuData(i, 0) = CType(Now, String)
             QuData(i, 1) = ElementNo
             QuData(i, 2) = LotNo
+            'QuData(i, 1) = CStr(Zaika(0)) + CStr(Zaika(1)) + CStr(Zaika(2)) + CStr(Zaika(3))
+            'QuData(i, 2) = CStr(ZaikaNG(0)) + CStr(ZaikaNG(1)) + CStr(ZaikaNG(2)) + CStr(ZaikaNG(3))
             QuData(i, 3) = s0 & "-" & CType(SayaPosi(i), String)
             Select Case JudgeLead(i)
                 Case 0
@@ -513,7 +513,7 @@
             End Select
             QuData(i, 11) = CType(i + 1, String)
             QuData(i, 12) = CType(IndexNo, String)
-            If NgFlag Then
+            If ZaikaNG(i) = 1 Then
                 NgCounter += 1
                 QuData(i, 13) = "R" & Trim(Str(Int((NgCounter - 1) / 200) + 1)) & "-" & Trim(Str(NgCounter - (Int((NgCounter - 1) / 200) * 200)))
             Else
@@ -526,8 +526,8 @@
 
 	Private Sub StackSet()
 		StackData(0, StackCounter) = ElementNo
-		StackData(1, StackCounter) = LotNo
-		StackData(2, StackCounter) = OperatorNo
+        StackData(1, StackCounter) = LotNo
+        StackData(2, StackCounter) = OperatorNo
         StackData(3, StackCounter) = CStr(InCo)
         StackData(4, StackCounter) = CStr(OkCo)
         StackData(5, StackCounter) = CStr(NgCo)
